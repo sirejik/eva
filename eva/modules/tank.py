@@ -4,13 +4,16 @@ import math
 from ev3dev2.motor import LargeMotor, MoveTank
 
 from eva.lib.config import TankConfig
-from eva.lib.settings import MAX_VELOCITY_IN_PERCENT, ROBOT_NAME
+from eva.lib.settings import LOW_SPEED_IN_PERCENT, TEST_SPEED_IN_PERCENT, NORMAL_SPEED_IN_PERCENT, \
+    HIGH_SPEED_IN_PERCENT, MAX_VELOCITY_IN_PERCENT, MotorsPortMapping
 
 logger = logging.getLogger()
 
 
-class TankBase:
-    def __init__(self, left_motor, right_motor):
+class BaseTank:
+    def __init__(self, left_motor=MotorsPortMapping.LEFT_MOTOR, right_motor=MotorsPortMapping.RIGHT_MOTOR):
+        self.config = TankConfig()
+
         self.left_motor = left_motor
         self.right_motor = right_motor
         self._tank_pair = MoveTank(self.left_motor, self.right_motor, motor_class=LargeMotor)
@@ -22,6 +25,22 @@ class TankBase:
     @property
     def max_velocity(self):
         return self._tank_pair.motors[self.right_motor].max_speed
+
+    @property
+    def low_velocity(self):
+        return self.max_velocity * LOW_SPEED_IN_PERCENT / 100.0
+
+    @property
+    def test_velocity(self):
+        return self.max_velocity * TEST_SPEED_IN_PERCENT / 100.0
+
+    @property
+    def normal_velocity(self):
+        return self.max_velocity * NORMAL_SPEED_IN_PERCENT / 100.0
+
+    @property
+    def high_velocity(self):
+        return self.max_velocity * HIGH_SPEED_IN_PERCENT / 100.0
 
     @property
     def max_power_in_percent(self):
@@ -65,20 +84,14 @@ class TankBase:
         return velocity_left_percentage, velocity_right_percentage
 
 
-class Tank(TankBase):
-    def __init__(self, left_motor, right_motor):
+class Tank(BaseTank):
+    def __init__(self, left_motor=MotorsPortMapping.LEFT_MOTOR, right_motor=MotorsPortMapping.RIGHT_MOTOR):
         super(Tank, self).__init__(left_motor, right_motor)
 
-        config = TankConfig()
-        config.verify()
-        self.degrees_to_360_rotation = config.degrees_to_360_rotation
-        self.degrees_to_1_meter_movement = config.degrees_to_1_meter_movement
-        self.furrow = config.furrow
-        if self.furrow is None:
-            raise Exception(
-                'The parameter "furrow" was not found in the config file. The work of {name} will be stopped. You must '
-                'run the tune.'.format(name=ROBOT_NAME)
-            )
+        self.config.verify()
+        self.degrees_to_360_rotation = self.config.degrees_to_360_rotation
+        self.degrees_to_1_meter_movement = self.config.degrees_to_1_meter_movement
+        self.furrow = self.config.furrow
 
     def move_in_arc(self, velocity, radius):
         if radius is None:

@@ -4,10 +4,9 @@ import time
 
 from PIL import Image, ImageDraw
 
-from eva.lib.config import TankConfig
-from eva.lib.settings import TEST_SPEED_IN_PERCENT, MotorsPortMapping
 from eva.modules.tank import Tank
 from eva.modules.infraredsensor import InfraredSensor
+from eva.tuner.base_tuner import BaseTuner
 
 logger = logging.getLogger()
 
@@ -18,17 +17,14 @@ DISTANCE_SEGMENT = 8
 DISTANCE_STEP = -0.1
 
 
-class InfraredTuner:
+class InfraredTuner(BaseTuner):
     def __init__(self):
-        self.tank = Tank(left_motor=MotorsPortMapping.LEFT_MOTOR, right_motor=MotorsPortMapping.RIGHT_MOTOR)
-        self.config = TankConfig()
+        super(InfraredTuner, self).__init__()
+
+        self.tank = Tank()
         self.infrared_sensor = InfraredSensor()
 
-    @property
-    def velocity_for_test(self):
-        return self.tank.max_velocity * TEST_SPEED_IN_PERCENT / 100.0
-
-    def tune_infrared_sensor(self):
+    def process(self):
         def point_coord(_x, _y):
             radius = _x / float(DISTANCE_SEGMENT)
             angle = _y * RADIUS_STEP
@@ -62,10 +58,13 @@ class InfraredTuner:
                 draw_polygon(distance_image_drawer, polygon, distance, 0, 100)
                 write_value(distance_image_drawer, point_coord(x + 0.5, y), distance)
 
-                self.tank.rotate_for_degrees(self.velocity_for_test, RADIUS_STEP)
+                self.tank.rotate_for_degrees(self.tank.test_velocity, RADIUS_STEP)
 
-            self.tank.rotate_for_degrees(self.velocity_for_test, - 2 * math.pi)
-            self.tank.forward_for_degrees(self.velocity_for_test, DISTANCE_STEP)
+            self.tank.rotate_for_degrees(self.tank.test_velocity, - 2 * math.pi)
+            self.tank.forward_for_degrees(self.tank.test_velocity, DISTANCE_STEP)
 
         heading_image.save("heading_image.png")
         distance_image.save("distance_image.png")
+
+    def save_to_config(self):
+        raise

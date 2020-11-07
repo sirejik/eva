@@ -1,18 +1,23 @@
 import logging
 import math
 
-from eva.lib.settings import NORMAL_VELOCITY_IN_PERCENT, MotorsPortMapping, RADIAN_IN_HEADING, METER_IN_DISTANCE
+from eva.lib.settings import RADIAN_IN_HEADING, METER_IN_DISTANCE
 from eva.lib.utils import FunctionResultWaiter
 from eva.modules.infraredsensor import InfraredSensor
 from eva.modules.tank import Tank
+from eva.robots.base_robot import BaseRobot
 
 logger = logging.getLogger()
 
 
-class Follower:
+class Follower(BaseRobot):
     def __init__(self):
-        self.tank = Tank(left_motor=MotorsPortMapping.LEFT_MOTOR, right_motor=MotorsPortMapping.RIGHT_MOTOR)
+        self.tank = Tank()
         self.infrared_sensor = InfraredSensor()
+
+    @property
+    def velocity(self):
+        return self.tank.normal_velocity
 
     def is_sensor_disabled(self, heading_and_distance):
         heading, distance = heading_and_distance
@@ -39,11 +44,7 @@ class Follower:
             not self.infrared_sensor.is_sensor_far_away(distance) and \
             self.infrared_sensor.is_sensor_in_front(heading)
 
-    @property
-    def velocity(self):
-        return self.tank.max_velocity * NORMAL_VELOCITY_IN_PERCENT / 100.0
-
-    def follow_sensor(self):
+    def run(self):
         while True:
             heading_and_distance = self.infrared_sensor.heading_and_distance()
             if self.is_sensor_disabled(heading_and_distance):

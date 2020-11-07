@@ -2,7 +2,7 @@ import logging
 
 from collections import namedtuple
 
-from eva.robots.trolley_tuner_base import TrolleyTunerBase
+from eva.tuner.trolley_tuner_base import TrolleyTunerBase
 
 logger = logging.getLogger()
 
@@ -13,17 +13,20 @@ class TrolleyTuner(TrolleyTunerBase):
     def __init__(self):
         super(TrolleyTuner, self).__init__()
 
+        self.min_reflected_light_intensity = self.color_sensor.config.min_reflected_light_intensity
+        self.max_reflected_light_intensity = self.color_sensor.config.max_reflected_light_intensity
+
         self.MAX_EXTREMUM_NUMBER = 20
         self.MAX_DAMPING = 0.10
 
         self.min_mistake = 0
         self.time = 0
 
-    def run(self):
-        kp = self.find_max_params(lambda x: (x, 0, 0), self.is_system_stable)
+    def process(self):
+        kp = self.maximize_params(lambda x: (x, 0, 0), self.is_system_stable)
         self.min_mistake = self.regulator.mistake
-        kd = self.find_max_params(lambda x: (kp, 0, x), self.is_more_accurate)
-        ki = self.find_max_params(lambda x: (kp, x, kd), self.is_more_accurate)
+        kd = self.maximize_params(lambda x: (kp, 0, x), self.is_more_accurate)
+        ki = self.maximize_params(lambda x: (kp, x, kd), self.is_more_accurate)
 
         logger.debug(kp)
         logger.debug(ki)
@@ -32,6 +35,10 @@ class TrolleyTuner(TrolleyTunerBase):
     @property
     def forward_velocity(self):
         return 0
+
+    @property
+    def rotate_velocity(self):
+        return self.tank.max_velocity
 
     def is_system_stable(self):
         if super(TrolleyTuner, self).is_system_stable() is False:
@@ -55,24 +62,24 @@ class TrolleyTuner(TrolleyTunerBase):
                 self.max_reflected_light_intensity - self.min_reflected_light_intensity
         ) < self.MAX_DAMPING
 
-    def calibrate(self, params):
+    def prepare(self):
         self.time = 0
-        return super(TrolleyTuner, self).calibrate(params)
+        return super(TrolleyTuner, self).prepare()
 
-    def is_should_be_stopped(self, measure):
+    def stopping(self, measures):
         if len(self.extremum_list) > self.MAX_EXTREMUM_NUMBER:
             return True
 
-        return super(TrolleyTuner, self).is_should_be_stopped(measure)
+        return super(TrolleyTuner, self).stopping(measures)
 
     def moving(self):
-        measure = super(TrolleyTuner, self).moving()
-        self._process_measure(measure)
-        return measure
+        measures = super(TrolleyTuner, self).moving()
+        self._process_measures(measures)
+        return measures
 
-    def _process_measure(self, measure):
+    def _process_measures(self, measures):
         self.time += 1
-        time_point = self._get_time_point(measure.reflected_light_intensity)
+        time_point = self._get_time_point(measures.reflected_light_intensity)
         if len(self.extremum_list) == 0:
             self.extremum_list.append(time_point)
         else:

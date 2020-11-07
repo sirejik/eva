@@ -28,7 +28,7 @@ def follow_sensor():
 
     logger.info('{name} began to follow you.'.format(name=ROBOT_NAME))
     robot = Follower()
-    robot.follow_sensor()
+    robot.run()
     logger.info('{name} found you.'.format(name=ROBOT_NAME))
 
 
@@ -42,7 +42,7 @@ def trolley():
 
 
 def trolley_tuner():
-    from eva.robots.trolley_tuner import TrolleyTuner
+    from eva.tuner.trolley_tuner import TrolleyTuner
 
     logger.info('{name} began to follow you.'.format(name=ROBOT_NAME))
     robot = TrolleyTuner()
@@ -51,7 +51,7 @@ def trolley_tuner():
 
 
 def trolley_tuner_on_track():
-    from eva.robots.trolley_tuner_on_track import TrolleyTunerOnTrack
+    from eva.tuner.trolley_tuner_on_track import TrolleyTunerOnTrack
 
     logger.info('{name} began to follow you.'.format(name=ROBOT_NAME))
     robot = TrolleyTunerOnTrack()
@@ -59,39 +59,30 @@ def trolley_tuner_on_track():
     logger.info('{name} found you.'.format(name=ROBOT_NAME))
 
 
-def tune_rotation():
-    from eva.robots.tank_tuner import TankTuner
-
-    logger.info('The auto-tuning of rotation started.')
-    tuner = TankTuner()
-    tuner.tune_rotation()
-    logger.info('The auto-tuning of rotation finished.')
-
-
-def tune_movement():
-    from eva.robots.tank_tuner import TankTuner
+def tune_motion():
+    from eva.tuner.tank_tuner import TankTuner
 
     logger.info('The auto-tuning of movement started.')
     tuner = TankTuner()
-    tuner.tune_movement()
+    tuner.tune()
     logger.info('The auto-tuning of movement finished.')
 
 
 def tune_infrared_sensor():
-    from eva.robots.ir_tuner import InfraredTuner
+    from eva.tuner.ir_tuner import InfraredTuner
 
     logger.info('The auto-tuning of infrared sensor started.')
     tuner = InfraredTuner()
-    tuner.tune_infrared_sensor()
+    tuner.tune()
     logger.info('The auto-tuning of infrared sensor finished.')
 
 
 def tune_reflected_intensity():
-    from eva.robots.color_tuner import ColorTuner
+    from eva.tuner.color_tuner import ColorTuner
 
     logger.info('The auto-tuning of reflected intensity started.')
     tuner = ColorTuner()
-    tuner.tune_reflected_intensity()
+    tuner.tune()
     logger.info('The auto-tuning of reflected intensity finished.')
 
 

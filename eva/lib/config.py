@@ -51,18 +51,18 @@ class TankConfig(Config):
         if self.degrees_to_360_rotation is None:
             raise Exception(
                 'The parameter "degrees_to_360_rotation" was not found in the config file. You must run the '
-                'tune_rotation.py.'
+                'tune_motion.py.'
             )
 
         if self.degrees_to_1_meter_movement is None:
             raise Exception(
                 'The parameter "degrees_to_1_meter_movement" was not found in the config file. You must run the '
-                'tune_movement.py.'
+                'tune_motion.py.'
             )
 
         if self.furrow is None:
             raise Exception(
-                'The parameter "furrow" was not found in the config file. You must run the tune_rotation.py.'
+                'The parameter "furrow" was not found in the config file. You must run the tune_motion.py.'
             )
 
     @property

@@ -18,12 +18,12 @@ To deploy a new version to the robot need to do the following:
 3. Upload the new version to the /root.
 
 ## Commands.
-All robot programs placed in the root directory and the following programs supported:
+All robot programs placed in the /root and the following programs supported:
 - The robot follows the infrared beacon: follower.py.
 - The robot moves along the drawn curved line: trolley.py.
 - The robot moves along a specified path: traveler.py.
 
-All auto-tuning programs placed in the /root/tune and the following programs supported:
+All auto-tuning programs placed in the /root and the following programs supported:
 - Tune motion parameters: tune_motion.py.
 - Tune infrared sensor parameters: tune_infrared_sensor.py.
 - Tune color sensor parameters: tune_color_sensor.py
