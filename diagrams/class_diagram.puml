@@ -1,0 +1,111 @@
+@startuml
+
+interface Config {
+}
+
+class TankConfig {
+}
+TankConfig --|> Config
+
+class ColorConfig {
+}
+ColorConfig --|> Config
+
+class PIDRegulatorBase {
+}
+
+class ColorSensorBase {
+}
+ColorSensorBase --> ColorConfig
+
+class ColorSensor {
+}
+ColorSensor --|> ColorSensorBase
+
+class InfraredSensor {
+}
+
+class BaseTank {
+}
+BaseTank --> TankConfig
+
+class Tank {
+}
+Tank --|> BaseTank
+
+interface BaseRobot {
+    run()
+}
+
+interface BaseTrolley {
+        tank: BaseTank
+        color_sensor: ColorSensor
+}
+BaseTrolley --|> BaseRobot
+BaseTrolley --> BaseTank
+BaseTrolley --> ColorSensor
+BaseTrolley --> PIDRegulatorBase
+
+class Follower {
+        tank: Tank
+        infrared_sensor: InfraredSensor
+}
+Follower --|> BaseRobot
+Follower --> Tank
+Follower --> InfraredSensor
+
+class Tracker {
+        tank: Tank
+}
+Tracker --|> BaseRobot
+Tracker --> Tank
+
+class Trolley {
+}
+Trolley --|> BaseTrolley
+
+interface BaseTuner {
+        touch_sensor: TouchSensor
+        sound: Sound
+        process()
+        save_to_config()
+}
+
+class ColorTuner {
+        tank: BaseTank
+        color_sensor: ColorSensorBase
+}
+ColorTuner --|> BaseTuner
+ColorTuner --> BaseTank
+ColorTuner --> ColorSensorBase
+
+class InfraredTuner {
+        tank: Tank
+        infrared_sensor: InfraredSensor
+}
+InfraredTuner --|> BaseTuner
+InfraredTuner --> Tank
+InfraredTuner --> InfraredSensor
+
+class TankTuner {
+        tank: BaseTank
+        color_sensor: ColorSensor
+}
+TankTuner --|> BaseTuner
+TankTuner --> BaseTank
+TankTuner --> ColorSensor
+
+class TrolleyTunerBase {
+}
+TrolleyTunerBase --|> BaseTrolley
+TrolleyTunerBase --|> BaseTuner
+
+class TrolleyTuner {
+}
+TrolleyTuner --|> TrolleyTunerBase
+
+class TrolleyTunerOnTrack {
+}
+TrolleyTunerOnTrack --|> TrolleyTunerBase
+
+@enduml
