@@ -22,6 +22,9 @@ class TrolleyTuner(TrolleyTunerBase):
         self.min_mistake = 0
         self.time = 0
 
+    def find_track(self):
+        return
+
     def process(self):
         kp = self.maximize_params(lambda x: (x, 0, 0), self.is_system_stable)
         self.min_mistake = self.regulator.mistake

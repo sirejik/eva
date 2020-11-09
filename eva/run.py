@@ -46,7 +46,7 @@ def trolley_tuner():
 
     logger.info('{name} began to follow you.'.format(name=ROBOT_NAME))
     robot = TrolleyTuner()
-    robot.run()
+    robot.tune()
     logger.info('{name} found you.'.format(name=ROBOT_NAME))
 
 
@@ -55,7 +55,7 @@ def trolley_tuner_on_track():
 
     logger.info('{name} began to follow you.'.format(name=ROBOT_NAME))
     robot = TrolleyTunerOnTrack()
-    robot.run()
+    robot.tune()
     logger.info('{name} found you.'.format(name=ROBOT_NAME))
 
 
