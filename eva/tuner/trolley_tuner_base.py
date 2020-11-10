@@ -4,7 +4,6 @@ from abc import ABC
 
 from collections import namedtuple
 
-from eva.lib.regulator import PIDRegulatorBase
 from eva.robots.base_trolley import BaseTrolley
 from eva.modules.colorsensor import ColorSensor
 from eva.tuner.base_tuner import BaseTuner
@@ -30,9 +29,6 @@ class TrolleyTunerBase(BaseTrolley, BaseTuner, ABC):
         self.kp = None
         self.ki = None
         self.kd = None
-
-    def create_regulator(self) -> PIDRegulatorBase:
-        return PIDRegulatorBase(self.kp, self.ki, self.kd, self.middle_reflected_light_intensity)
 
     def stopping(self, measures):
         if measures.color == self.STOP_COLOR:
@@ -87,6 +83,3 @@ class TrolleyTunerBase(BaseTrolley, BaseTuner, ABC):
         self.extremum_list = []
 
         super(TrolleyTunerBase, self).prepare()
-
-    def save_to_config(self):
-        raise

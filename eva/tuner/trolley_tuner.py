@@ -2,6 +2,7 @@ import logging
 
 from collections import namedtuple
 
+from eva.lib.regulator import PIDRegulatorBase
 from eva.tuner.trolley_tuner_base import TrolleyTunerBase
 
 logger = logging.getLogger()
@@ -31,17 +32,11 @@ class TrolleyTuner(TrolleyTunerBase):
         kd = self.maximize_params(lambda x: (kp, 0, x), self.is_more_accurate)
         ki = self.maximize_params(lambda x: (kp, x, kd), self.is_more_accurate)
 
-        logger.debug(kp)
-        logger.debug(ki)
-        logger.debug(kd)
+        self.kp, self.ki, self.kd = kp, ki, kd
 
     @property
     def forward_velocity(self):
         return 0
-
-    @property
-    def rotate_velocity(self):
-        return self.tank.max_velocity
 
     def is_system_stable(self):
         if super(TrolleyTuner, self).is_system_stable() is False:
@@ -103,3 +98,11 @@ class TrolleyTuner(TrolleyTunerBase):
             comparison = 0
 
         return TimePoint(time=self.time, color=color, comparison=comparison)
+
+    def save_to_config(self):
+        self.pid_config.kp = self.kp
+        self.pid_config.ki = self.ki
+        self.pid_config.kd = self.kd
+
+    def create_regulator(self) -> PIDRegulatorBase:
+        return PIDRegulatorBase(self.kp, self.ki, self.kd, self.middle_reflected_light_intensity)

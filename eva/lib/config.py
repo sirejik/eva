@@ -115,3 +115,51 @@ class ColorConfig(Config):
     @max_reflected_light_intensity.setter
     def max_reflected_light_intensity(self, value):
         self.set_property('max_reflected_light_intensity', value)
+
+
+class TrolleyPIDConfig(Config):
+    def __init__(self):
+        super(TrolleyPIDConfig, self).__init__(CONFIG_FILE)
+
+    def verify(self):
+        if self.kp is None or self.ki is None or self.kd is None:
+            raise Exception(
+                'The PID regulator doesn\'t tuned. You must run the tune_trolley_pid_regulator.py.'
+            )
+
+        if self.max_velocity is None:
+            raise Exception(
+                'The max velocity for the trolley doesn\'t tuned. You must run the tune_trolley_velocity.py.'
+            )
+
+    @property
+    def kp(self):
+        return self.get_property('kp')
+
+    @kp.setter
+    def kp(self, value):
+        self.set_property('kp', value)
+
+    @property
+    def ki(self):
+        return self.get_property('ki')
+
+    @ki.setter
+    def ki(self, value):
+        self.set_property('ki', value)
+
+    @property
+    def kd(self):
+        return self.get_property('kd')
+
+    @kd.setter
+    def kd(self, value):
+        self.set_property('kd', value)
+
+    @property
+    def max_velocity(self):
+        return self.get_property('max_velocity')
+
+    @max_velocity.setter
+    def max_velocity(self, value):
+        self.set_property('max_velocity', value)

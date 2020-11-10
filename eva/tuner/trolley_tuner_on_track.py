@@ -20,13 +20,9 @@ class TrolleyTunerOnTrack(TrolleyTunerBase):
     def forward_velocity(self):
         return self.tank.max_velocity * self.velocity_percent
 
-    @property
-    def rotate_velocity(self):
-        return self.tank.max_velocity
-
     def create_params(self, x):
         self.velocity_percent = x
-        return 0.0069580078125, 0.0, 0.005859375
+        return self.kp, self.ki, self.kd
 
     def prepare(self):
         super(TrolleyTunerOnTrack, self).prepare()
@@ -35,3 +31,6 @@ class TrolleyTunerOnTrack(TrolleyTunerBase):
         FunctionResultWaiter(
             lambda: self.color_sensor.color, None, check_function=lambda color: color == self.TRACK_COLOR
         ).run()
+
+    def save_to_config(self):
+        self.pid_config.max_velocity = self.tank.max_velocity * self.velocity_percent

@@ -2,6 +2,7 @@ import logging
 
 from abc import abstractmethod
 
+from eva.lib.config import TrolleyPIDConfig
 from eva.lib.regulator import PIDRegulatorBase
 from eva.lib.utils import FunctionResultWaiter
 from eva.modules.colorsensor import ColorSensor
@@ -23,6 +24,7 @@ class BaseTrolley(BaseRobot):
         ) * 0.5
 
         self.regulator = None
+        self.pid_config = TrolleyPIDConfig()
 
     def run(self):
         self.prepare()
@@ -33,9 +35,10 @@ class BaseTrolley(BaseRobot):
     def prepare(self):
         self.regulator = self.create_regulator()
 
-    @abstractmethod
     def create_regulator(self) -> PIDRegulatorBase:
-        pass
+        return PIDRegulatorBase(
+            self.pid_config.kp, self.pid_config.ki, self.pid_config.kd, self.middle_reflected_light_intensity
+        )
 
     def find_track(self):
         self.tank.forward(self.tank.test_velocity)
@@ -83,6 +86,5 @@ class BaseTrolley(BaseRobot):
         pass
 
     @property
-    @abstractmethod
     def rotate_velocity(self):
-        pass
+        return self.tank.max_velocity
