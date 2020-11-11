@@ -13,7 +13,7 @@ class TrolleyTunerOnTrack(TrolleyTunerBase):
         self.velocity_percent = None
 
     def process(self):
-        max_forward_speed = self.maximize_params(self.create_params, self.is_system_stable, 10, 50)
+        max_forward_speed = self.maximize_params(self.create_params, self.is_system_stable)
         logger.debug(max_forward_speed)
 
     @property
