@@ -20,7 +20,6 @@ class TrolleyTuner(TrolleyTunerBase):
         self.MAX_EXTREMUM_NUMBER = 20
         self.MAX_DAMPING = 0.10
 
-        self.min_mistake = 0
         self.time = 0
 
     def find_track(self):
@@ -28,9 +27,8 @@ class TrolleyTuner(TrolleyTunerBase):
 
     def process(self):
         kp = self.maximize_params(lambda x: (x, 0, 0), self.is_system_stable)
-        self.min_mistake = self.regulator.mistake
-        kd = self.maximize_params(lambda x: (kp, 0, x), self.is_more_accurate)
-        ki = self.maximize_params(lambda x: (kp, x, kd), self.is_more_accurate)
+        kd = self.maximize_params(lambda x: (kp, 0, x), self.is_system_stable)
+        ki = self.maximize_params(lambda x: (kp, x, kd), self.is_system_stable)
 
         self.kp, self.ki, self.kd = kp, ki, kd
 
@@ -85,8 +83,8 @@ class TrolleyTuner(TrolleyTunerBase):
             if last_extremum.comparison != time_point.comparison or time_point.comparison == 0:
                 self.extremum_list.append(time_point)
             else:
-                if (last_extremum.comparison == 1 and last_extremum.color > time_point.color) or \
-                        (last_extremum.comparison == -1 and last_extremum.color < time_point.color):
+                if (last_extremum.comparison == 1 and last_extremum.color < time_point.color) or \
+                        (last_extremum.comparison == -1 and last_extremum.color > time_point.color):
                     self.extremum_list[-1] = time_point
 
     def _get_time_point(self, color):

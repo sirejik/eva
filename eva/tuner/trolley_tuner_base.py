@@ -24,7 +24,6 @@ class TrolleyTunerBase(BaseTrolley, BaseTuner, ABC):
         super(TrolleyTunerBase, self).__init__()
 
         self.extremum_list = []
-        self.min_mistake = None
         self.is_stopped_on_stop_line = False
         self.kp = None
         self.ki = None
@@ -63,16 +62,6 @@ class TrolleyTunerBase(BaseTrolley, BaseTuner, ABC):
 
     def is_system_stable(self):
         return not self.is_stopped_on_stop_line
-
-    def is_more_accurate(self):
-        if not self.is_system_stable():
-            return False
-
-        if self.regulator.mistake <= self.min_mistake:
-            self.min_mistake = self.regulator.mistake
-            return True
-        else:
-            return False
 
     def prepare(self):
         # 1. Set manually to the initial position
