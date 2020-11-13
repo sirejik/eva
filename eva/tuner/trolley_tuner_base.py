@@ -10,15 +10,12 @@ from eva.tuner.base_tuner import BaseTuner
 
 logger = logging.getLogger()
 
-Measure = namedtuple('Measure', ['reflected_light_intensity', 'color'])
+Measure = namedtuple('Measure', ['reflected_light_intensity'])
 MAX_STEPS = 13
 
 
 class TrolleyTunerBase(BaseTrolley, BaseTuner, ABC):
     TRACK_COLOR = ColorSensor.COLOR_WHITE
-    STOP_COLOR = ColorSensor.COLOR_RED
-    FLOOR_COLOR = ColorSensor.COLOR_BLACK
-    FINISH_COLOR = ColorSensor.COLOR_GREEN
 
     def __init__(self):
         super(TrolleyTunerBase, self).__init__()
@@ -30,19 +27,13 @@ class TrolleyTunerBase(BaseTrolley, BaseTuner, ABC):
         self.kd = None
 
     def stopping(self, measures):
-        if measures.color == self.STOP_COLOR:
-            self.is_stopped_on_stop_line = True
-            return True
-
-        if measures.color == self.FINISH_COLOR:
+        if self.touch_sensor.is_pressed:
             return True
 
         return False
 
     def get_measures(self):
-        return Measure(
-            reflected_light_intensity=self.color_sensor.reflected_light_intensity, color=self.color_sensor.color
-        )
+        return Measure(reflected_light_intensity=self.color_sensor.reflected_light_intensity)
 
     def get_color_from_measures(self, measures):
         return measures.reflected_light_intensity

@@ -18,7 +18,7 @@ class TrolleyTuner(TrolleyTunerBase):
         self.max_reflected_light_intensity = self.color_sensor.config.max_reflected_light_intensity
 
         self.MAX_EXTREMUM_NUMBER = 20
-        self.MAX_DAMPING = 0.10
+        self.MAX_DAMPING = 0.5
 
         self.time = 0
 
@@ -103,4 +103,4 @@ class TrolleyTuner(TrolleyTunerBase):
         self.pid_config.kd = self.kd
 
     def create_regulator(self) -> PIDRegulatorBase:
-        return PIDRegulatorBase(self.kp, self.ki, self.kd, self.middle_reflected_light_intensity)
+        return PIDRegulatorBase(self.kp, self.ki, self.kd, 0.5)

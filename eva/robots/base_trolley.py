@@ -23,6 +23,11 @@ class BaseTrolley(BaseRobot):
             self.color_sensor.config.max_reflected_light_intensity
         ) * 0.5
 
+        self.delta_reflected_light_intensity = (
+            self.color_sensor.config.max_reflected_light_intensity -
+            self.color_sensor.config.min_reflected_light_intensity
+        ) * 0.5
+
         self.regulator = None
         self.pid_config = TrolleyPIDConfig()
 
@@ -37,7 +42,7 @@ class BaseTrolley(BaseRobot):
 
     def create_regulator(self) -> PIDRegulatorBase:
         return PIDRegulatorBase(
-            self.pid_config.kp, self.pid_config.ki, self.pid_config.kd, self.middle_reflected_light_intensity
+            self.pid_config.kp, self.pid_config.ki, self.pid_config.kd, 0.5
         )
 
     def find_track(self):
@@ -59,10 +64,11 @@ class BaseTrolley(BaseRobot):
         measures = self.get_measures()
         color = self.get_color_from_measures(measures)
 
-        power = self.regulator.get_power(color)
+        power = self.regulator.get_power(color / self.delta_reflected_light_intensity - 0.5)
 
-        velocity_left = self.forward_velocity + self.rotate_velocity * power
-        velocity_right = self.forward_velocity - self.rotate_velocity * power
+        rotate_velocity = self.rotate_velocity * power
+        velocity_left = self.forward_velocity + rotate_velocity
+        velocity_right = self.forward_velocity - rotate_velocity
 
         self.tank.on(velocity_left, velocity_right)
 
@@ -87,4 +93,4 @@ class BaseTrolley(BaseRobot):
 
     @property
     def rotate_velocity(self):
-        return self.tank.max_velocity
+        return self.tank.max_power_in_percent

@@ -28,30 +28,26 @@ class BaseTank:
 
     @property
     def low_velocity(self):
-        return self.max_velocity * LOW_SPEED_IN_PERCENT / 100.0
+        return LOW_SPEED_IN_PERCENT
 
     @property
     def test_velocity(self):
-        return self.max_velocity * TEST_SPEED_IN_PERCENT / 100.0
+        return TEST_SPEED_IN_PERCENT
 
     @property
     def normal_velocity(self):
-        return self.max_velocity * NORMAL_SPEED_IN_PERCENT / 100.0
+        return NORMAL_SPEED_IN_PERCENT
 
     @property
     def high_velocity(self):
-        return self.max_velocity * HIGH_SPEED_IN_PERCENT / 100.0
+        return HIGH_SPEED_IN_PERCENT
 
     @property
     def max_power_in_percent(self):
         return MAX_VELOCITY_IN_PERCENT
 
-    def get_velocity_percentage(self, velocity):
-        return (100.0 * velocity) / self.max_velocity
-
     def forward(self, velocity):
-        velocity_percentage = self.get_velocity_percentage(velocity)
-        self._tank_pair.on(left_speed=velocity_percentage, right_speed=velocity_percentage)
+        self._tank_pair.on(left_speed=velocity, right_speed=velocity)
 
     def on(self, velocity_left, velocity_right):
         velocity_left_percentage, velocity_right_percentage = self._get_calibrated_velocities_in_percent(
@@ -61,20 +57,19 @@ class BaseTank:
         self._tank_pair.on(left_speed=velocity_left_percentage, right_speed=velocity_right_percentage)
 
     def rotate(self, velocity, is_right_turn):
-        velocity_percentage = self.get_velocity_percentage(velocity)
         if is_right_turn:
-            self._tank_pair.on(left_speed=velocity_percentage, right_speed=-velocity_percentage)
+            self._tank_pair.on(left_speed=velocity, right_speed=-velocity)
         else:
-            self._tank_pair.on(left_speed=-velocity_percentage, right_speed=velocity_percentage)
+            self._tank_pair.on(left_speed=-velocity, right_speed=velocity)
 
     def stop(self):
         self._tank_pair.stop()  # TODO: check option brake
 
     def _get_calibrated_velocities_in_percent(self, velocity_left, velocity_right):
-        velocity_left_percentage = self.get_velocity_percentage(velocity_left)
-        velocity_right_percentage = self.get_velocity_percentage(velocity_right)
+        velocity_left_percentage = velocity_left
+        velocity_right_percentage = velocity_right
 
-        max_value = max(math.fabs(velocity_left_percentage), math.fabs(velocity_right_percentage))
+        max_value = max(math.fabs(velocity_left), math.fabs(velocity_right))
 
         if max_value > self.max_power_in_percent:
             power_coefficient = self.max_power_in_percent / float(max_value)
@@ -113,12 +108,8 @@ class Tank(BaseTank):
 
     def forward_for_degrees(self, velocity, way_length):
         degrees = self.degrees_to_1_meter_movement * way_length
-        velocity_percentage = self.get_velocity_percentage(velocity)
-        self._tank_pair.on_for_degrees(left_speed=velocity_percentage, right_speed=velocity_percentage, degrees=degrees)
+        self._tank_pair.on_for_degrees(left_speed=velocity, right_speed=velocity, degrees=degrees)
 
     def rotate_for_degrees(self, velocity, degrees):
         degrees = self.degrees_to_360_rotation * degrees / (2.0 * math.pi)
-        velocity_percentage = self.get_velocity_percentage(velocity)
-        self._tank_pair.on_for_degrees(
-            left_speed=velocity_percentage, right_speed=-velocity_percentage, degrees=degrees
-        )
+        self._tank_pair.on_for_degrees(left_speed=velocity, right_speed=-velocity, degrees=degrees)
