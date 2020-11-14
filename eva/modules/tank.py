@@ -66,17 +66,12 @@ class BaseTank:
         self._tank_pair.stop()  # TODO: check option brake
 
     def _get_calibrated_velocities_in_percent(self, velocity_left, velocity_right):
-        velocity_left_percentage = velocity_left
-        velocity_right_percentage = velocity_right
-
-        max_value = max(math.fabs(velocity_left), math.fabs(velocity_right))
-
-        if max_value > self.max_power_in_percent:
-            power_coefficient = self.max_power_in_percent / float(max_value)
-            velocity_left_percentage = velocity_left_percentage * power_coefficient
-            velocity_right_percentage = velocity_right_percentage * power_coefficient
-
-        return velocity_left_percentage, velocity_right_percentage
+        if velocity_left > self.max_power_in_percent:
+            return self.max_power_in_percent, velocity_right * self.max_power_in_percent / velocity_left
+        elif velocity_right > self.max_power_in_percent:
+            return velocity_left * self.max_power_in_percent / velocity_right, self.max_power_in_percent
+        else:
+            return velocity_left, velocity_right
 
 
 class Tank(BaseTank):
@@ -100,11 +95,7 @@ class Tank(BaseTank):
         velocity_left = velocity * (1 + velocity_coefficient)
         velocity_right = velocity * (1 - velocity_coefficient)
 
-        velocity_left_percentage, velocity_right_percentage = self._get_calibrated_velocities_in_percent(
-            velocity_left, velocity_right
-        )
-
-        self._tank_pair.on(left_speed=velocity_left_percentage, right_speed=velocity_right_percentage)
+        self.on(velocity_left, velocity_right)
 
     def forward_for_degrees(self, velocity, way_length):
         degrees = self.degrees_to_1_meter_movement * way_length
