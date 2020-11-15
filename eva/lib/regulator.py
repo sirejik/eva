@@ -3,7 +3,7 @@ import logging
 logger = logging.getLogger()
 
 
-class PIDRegulatorBase:
+class PIDRegulator:
     def __init__(self, kp, ki, kd, r):
         self.power = 0
         self.en = 0
@@ -23,12 +23,3 @@ class PIDRegulatorBase:
 
         self.mistake += abs(en)
         return power
-
-
-class PIDRegulator(PIDRegulatorBase):
-    def __init__(self, kp, t, r):
-        kp = 0.6 * kp
-        ki = 1.2 * kp / t
-        kd = 0.075 * kp * t
-
-        super(PIDRegulator, self).__init__(kp, ki, kd, r)

@@ -11,7 +11,7 @@ class ColorConfig {
 }
 ColorConfig --|> Config
 
-class PIDRegulatorBase {
+class PIDRegulator {
 }
 
 class ColorSensorBase {
@@ -44,7 +44,7 @@ interface BaseTrolley {
 BaseTrolley --|> BaseRobot
 BaseTrolley --> BaseTank
 BaseTrolley --> ColorSensor
-BaseTrolley --> PIDRegulatorBase
+BaseTrolley --> PIDRegulator
 
 class Follower {
         tank: Tank

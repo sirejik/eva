@@ -2,14 +2,18 @@ import logging
 
 from abc import abstractmethod
 
+from collections import namedtuple
+
 from eva.lib.config import TrolleyPIDConfig
-from eva.lib.regulator import PIDRegulatorBase
+from eva.lib.regulator import PIDRegulator
 from eva.lib.utils import FunctionResultWaiter
 from eva.modules.colorsensor import ColorSensor
 from eva.modules.tank import BaseTank
 from eva.robots.base_robot import BaseRobot
 
 logger = logging.getLogger()
+
+Measure = namedtuple('Measure', ['reflected_light_intensity'])
 
 
 class BaseTrolley(BaseRobot):
@@ -40,8 +44,8 @@ class BaseTrolley(BaseRobot):
     def prepare(self):
         self.regulator = self.create_regulator()
 
-    def create_regulator(self) -> PIDRegulatorBase:
-        return PIDRegulatorBase(self.pid_config.kp, self.pid_config.ki, self.pid_config.kd, 0)
+    def create_regulator(self) -> PIDRegulator:
+        return PIDRegulator(self.pid_config.kp, self.pid_config.ki, self.pid_config.kd, 0)
 
     def find_track(self):
         self.tank.forward(self.tank.test_velocity)
@@ -59,8 +63,8 @@ class BaseTrolley(BaseRobot):
         self.tank.stop()
 
     def moving(self):
-        measures = self.get_measures()
-        color = self.get_color_from_measures(measures)
+        measure = self.get_measure()
+        color = self.get_color_from_measure(measure)
 
         power = self.regulator.get_power(
             (color - self.middle_reflected_light_intensity) / self.spread_reflected_light_intensity
@@ -71,19 +75,18 @@ class BaseTrolley(BaseRobot):
         velocity_right = self.forward_velocity - rotate_velocity
         self.tank.on(velocity_left, velocity_right)
 
-        return measures
+        return measure
 
     @abstractmethod
-    def stopping(self, measures):
+    def stopping(self, measure):
         pass
 
-    @abstractmethod
-    def get_measures(self):
-        pass
+    def get_measure(self):
+        return Measure(reflected_light_intensity=self.color_sensor.reflected_light_intensity)
 
-    @abstractmethod
-    def get_color_from_measures(self, measures):
-        pass
+    @staticmethod
+    def get_color_from_measure(measure):
+        return measure.reflected_light_intensity
 
     @property
     @abstractmethod
