@@ -1,26 +1,28 @@
 import logging
 
-from collections import namedtuple
-
 from eva.lib.regulator import PIDRegulatorBase
 from eva.tuner.trolley_tuner_base import TrolleyTunerBase
 
 logger = logging.getLogger()
 
-TimePoint = namedtuple('TimePoint', ['time', 'color', 'comparison'])
+
+MAX_STABLE_SPREAD = 5
+MAX_STABLE_MEASURE_NUMBER = 20
+MAX_EXTREMUM_NUMBER = 20
+MAX_UNSTABLE_MEASURE_NUMBER = 50
 
 
 class TrolleyTuner(TrolleyTunerBase):
     def __init__(self):
         super(TrolleyTuner, self).__init__()
 
-        self.min_reflected_light_intensity = self.color_sensor.config.min_reflected_light_intensity
-        self.max_reflected_light_intensity = self.color_sensor.config.max_reflected_light_intensity
+        self.low_stable_reflected_light_intensity = self.middle_reflected_light_intensity - MAX_STABLE_SPREAD
+        self.high_stable_reflected_light_intensity = self.middle_reflected_light_intensity + MAX_STABLE_SPREAD
 
-        self.MAX_EXTREMUM_NUMBER = 20
-        self.MAX_DAMPING = 0.5
-
-        self.time = 0
+        self.stable_measure_number = 0
+        self.last_extremum = None
+        self.extremum_number = 0
+        self.unstable_measure_number = 0
 
     def find_track(self):
         return
@@ -40,30 +42,27 @@ class TrolleyTuner(TrolleyTunerBase):
         if super(TrolleyTuner, self).is_system_stable() is False:
             return False
 
-        extremum_list = self.extremum_list[1:-1]
-
-        top_extremum = [x.color for x in extremum_list if x.comparison == 1]
-        bottom_extremum = [x.color for x in extremum_list if x.comparison == -1]
-
-        if len(top_extremum) == 0 or len(bottom_extremum) == 0:
+        if self.stable_measure_number > MAX_STABLE_MEASURE_NUMBER:
             return True
 
-        max_top_extremum = max(top_extremum)
-        min_bottom_extremum = min(bottom_extremum)
-
-        if max_top_extremum == min_bottom_extremum:
-            raise
-
-        return (top_extremum[-1] - bottom_extremum[-1]) / (
-                self.max_reflected_light_intensity - self.min_reflected_light_intensity
-        ) < self.MAX_DAMPING
+        return False
 
     def prepare(self):
-        self.time = 0
+        self.stable_measure_number = 0
+        self.last_extremum = None
+        self.extremum_number = 0
+        self.unstable_measure_number = 0
+
         return super(TrolleyTuner, self).prepare()
 
     def stopping(self, measures):
-        if len(self.extremum_list) > self.MAX_EXTREMUM_NUMBER:
+        if self.extremum_number > MAX_EXTREMUM_NUMBER:
+            return True
+
+        if self.stable_measure_number > MAX_STABLE_MEASURE_NUMBER:
+            return True
+
+        if self.unstable_measure_number > MAX_UNSTABLE_MEASURE_NUMBER:
             return True
 
         return super(TrolleyTuner, self).stopping(measures)
@@ -74,28 +73,31 @@ class TrolleyTuner(TrolleyTunerBase):
         return measures
 
     def _process_measures(self, measures):
-        self.time += 1
-        time_point = self._get_time_point(measures.reflected_light_intensity)
-        if len(self.extremum_list) == 0:
-            self.extremum_list.append(time_point)
+        if self.low_stable_reflected_light_intensity <= measures.reflected_light_intensity <= \
+                self.high_stable_reflected_light_intensity:
+            self.stable_measure_number += 1
         else:
-            last_extremum = self.extremum_list[-1]
-            if last_extremum.comparison != time_point.comparison or time_point.comparison == 0:
-                self.extremum_list.append(time_point)
-            else:
-                if (last_extremum.comparison == 1 and last_extremum.color < time_point.color) or \
-                        (last_extremum.comparison == -1 and last_extremum.color > time_point.color):
-                    self.extremum_list[-1] = time_point
+            self.stable_measure_number = 0
 
-    def _get_time_point(self, color):
-        if color < self.middle_reflected_light_intensity:
+        if measures.reflected_light_intensity < self.middle_reflected_light_intensity:
             comparison = -1
-        elif color > self.middle_reflected_light_intensity:
+        elif measures.reflected_light_intensity > self.middle_reflected_light_intensity:
             comparison = 1
         else:
             comparison = 0
 
-        return TimePoint(time=self.time, color=color, comparison=comparison)
+        if comparison != 0:
+            if self.last_extremum is None:
+                self.last_extremum = comparison
+                self.extremum_number = 1
+            elif self.last_extremum != comparison:
+                self.last_extremum = comparison
+                self.extremum_number += 1
+                self.unstable_measure_number = 0
+            else:
+                self.unstable_measure_number += 1
+        else:
+            self.unstable_measure_number = 0
 
     def save_to_config(self):
         self.pid_config.kp = self.kp
@@ -103,4 +105,4 @@ class TrolleyTuner(TrolleyTunerBase):
         self.pid_config.kd = self.kd
 
     def create_regulator(self) -> PIDRegulatorBase:
-        return PIDRegulatorBase(self.kp, self.ki, self.kd, 0.5)
+        return PIDRegulatorBase(self.kp, self.ki, self.kd, 0)

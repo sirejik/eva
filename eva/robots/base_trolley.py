@@ -23,7 +23,7 @@ class BaseTrolley(BaseRobot):
             self.color_sensor.config.max_reflected_light_intensity
         ) * 0.5
 
-        self.delta_reflected_light_intensity = (
+        self.spread_reflected_light_intensity = (
             self.color_sensor.config.max_reflected_light_intensity -
             self.color_sensor.config.min_reflected_light_intensity
         ) * 0.5
@@ -41,9 +41,7 @@ class BaseTrolley(BaseRobot):
         self.regulator = self.create_regulator()
 
     def create_regulator(self) -> PIDRegulatorBase:
-        return PIDRegulatorBase(
-            self.pid_config.kp, self.pid_config.ki, self.pid_config.kd, 0.5
-        )
+        return PIDRegulatorBase(self.pid_config.kp, self.pid_config.ki, self.pid_config.kd, 0)
 
     def find_track(self):
         self.tank.forward(self.tank.test_velocity)
@@ -51,11 +49,11 @@ class BaseTrolley(BaseRobot):
         FunctionResultWaiter(
             lambda: self.color_sensor.reflected_light_intensity, None,
             check_function=lambda reflected_light_intensity:
-                reflected_light_intensity >= self.middle_reflected_light_intensity
+                reflected_light_intensity >= self.middle_reflected_light_intensity,
         ).run()
 
     def move_on_track(self):
-        FunctionResultWaiter(self.moving, None, check_function=self.stopping).run()
+        FunctionResultWaiter(self.moving, None, check_function=self.stopping, interval_between_attempts=0).run()
 
     def complete(self):
         self.tank.stop()
@@ -64,12 +62,13 @@ class BaseTrolley(BaseRobot):
         measures = self.get_measures()
         color = self.get_color_from_measures(measures)
 
-        power = self.regulator.get_power(color / self.delta_reflected_light_intensity - 0.5)
+        power = self.regulator.get_power(
+            (color - self.middle_reflected_light_intensity) / self.spread_reflected_light_intensity
+        )
 
         rotate_velocity = self.rotate_velocity * power
         velocity_left = self.forward_velocity + rotate_velocity
         velocity_right = self.forward_velocity - rotate_velocity
-
         self.tank.on(velocity_left, velocity_right)
 
         return measures

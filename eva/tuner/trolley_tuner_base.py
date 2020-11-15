@@ -20,14 +20,15 @@ class TrolleyTunerBase(BaseTrolley, BaseTuner, ABC):
     def __init__(self):
         super(TrolleyTunerBase, self).__init__()
 
-        self.extremum_list = []
-        self.is_stopped_on_stop_line = False
         self.kp = None
         self.ki = None
         self.kd = None
+        self.is_interrupted = False
 
     def stopping(self, measures):
-        if self.touch_sensor.is_pressed:
+        result = self.check_long_button_press()
+        if result is not None:
+            self.is_interrupted = result
             return True
 
         return False
@@ -45,21 +46,17 @@ class TrolleyTunerBase(BaseTrolley, BaseTuner, ABC):
 
         self.kp, self.ki, self.kd = create_params(current_value)
         self.run()
-
+        print(self.kp, self.ki, self.kd, self.regulator.mistake, is_system_stable())
         if is_system_stable():
             return self.maximize_params(create_params, is_system_stable, current_value, end_value, step + 1)
         else:
             return self.maximize_params(create_params, is_system_stable, start_value, current_value, step + 1)
 
     def is_system_stable(self):
-        return not self.is_stopped_on_stop_line
+        return not self.is_interrupted
 
     def prepare(self):
-        # 1. Set manually to the initial position
+        # Set manually to the initial position
         self.wait_button_press()
-
-        # 2. Initiate variables
-        self.is_stopped_on_stop_line = False
-        self.extremum_list = []
 
         super(TrolleyTunerBase, self).prepare()
