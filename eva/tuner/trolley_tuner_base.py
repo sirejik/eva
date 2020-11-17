@@ -3,15 +3,15 @@ import logging
 from abc import ABC
 
 from eva.lib.parameters import Parameters
-from eva.robots.base_trolley import BaseTrolley
-from eva.tuner.base_tuner import BaseTuner
+from eva.robots.trolley_base import TrolleyBase
+from eva.tuner.tuner_base import TunerBase
 
 logger = logging.getLogger()
 
 MAX_STEPS = 7
 
 
-class TrolleyTunerBase(BaseTrolley, BaseTuner, ABC):
+class TrolleyTunerBase(TrolleyBase, TunerBase, ABC):
     def __init__(self):
         super(TrolleyTunerBase, self).__init__()
 

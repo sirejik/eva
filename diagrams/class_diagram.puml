@@ -25,46 +25,46 @@ ColorSensor --|> ColorSensorBase
 class InfraredSensor {
 }
 
-class BaseTank {
+class TankBase {
 }
-BaseTank --> TankConfig
+TankBase --> TankConfig
 
 class Tank {
 }
-Tank --|> BaseTank
+Tank --|> TankBase
 
-interface BaseRobot {
+interface RobotBase {
     run()
 }
 
-interface BaseTrolley {
-        tank: BaseTank
+interface TrolleyBase {
+        tank: TankBase
         color_sensor: ColorSensor
 }
-BaseTrolley --|> BaseRobot
-BaseTrolley --> BaseTank
-BaseTrolley --> ColorSensor
-BaseTrolley --> PIDRegulator
+TrolleyBase --|> RobotBase
+TrolleyBase --> TankBase
+TrolleyBase --> ColorSensor
+TrolleyBase --> PIDRegulator
 
 class Follower {
         tank: Tank
         infrared_sensor: InfraredSensor
 }
-Follower --|> BaseRobot
+Follower --|> RobotBase
 Follower --> Tank
 Follower --> InfraredSensor
 
-class Tracker {
+class Traveler {
         tank: Tank
 }
-Tracker --|> BaseRobot
-Tracker --> Tank
+Traveler --|> RobotBase
+Traveler --> Tank
 
 class Trolley {
 }
-Trolley --|> BaseTrolley
+Trolley --|> TrolleyBase
 
-interface BaseTuner {
+interface TunerBase {
         touch_sensor: TouchSensor
         sound: Sound
         process()
@@ -72,33 +72,33 @@ interface BaseTuner {
 }
 
 class ColorTuner {
-        tank: BaseTank
+        tank: TankBase
         color_sensor: ColorSensorBase
 }
-ColorTuner --|> BaseTuner
-ColorTuner --> BaseTank
+ColorTuner --|> TunerBase
+ColorTuner --> TankBase
 ColorTuner --> ColorSensorBase
 
 class InfraredTuner {
         tank: Tank
         infrared_sensor: InfraredSensor
 }
-InfraredTuner --|> BaseTuner
+InfraredTuner --|> TunerBase
 InfraredTuner --> Tank
 InfraredTuner --> InfraredSensor
 
 class TankTuner {
-        tank: BaseTank
+        tank: TankBase
         color_sensor: ColorSensor
 }
-TankTuner --|> BaseTuner
-TankTuner --> BaseTank
+TankTuner --|> TunerBase
+TankTuner --> TankBase
 TankTuner --> ColorSensor
 
 class TrolleyTunerBase {
 }
-TrolleyTunerBase --|> BaseTrolley
-TrolleyTunerBase --|> BaseTuner
+TrolleyTunerBase --|> TrolleyBase
+TrolleyTunerBase --|> TunerBase
 
 class TrolleyTuner {
 }

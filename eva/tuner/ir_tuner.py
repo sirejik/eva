@@ -6,7 +6,7 @@ from PIL import Image, ImageDraw
 
 from eva.modules.tank import Tank
 from eva.modules.infraredsensor import InfraredSensor
-from eva.tuner.base_tuner import BaseTuner
+from eva.tuner.tuner_base import TunerBase
 
 logger = logging.getLogger()
 
@@ -17,7 +17,7 @@ DISTANCE_SEGMENT = 8
 DISTANCE_STEP = -0.1
 
 
-class InfraredTuner(BaseTuner):
+class InfraredTuner(TunerBase):
     def __init__(self):
         super(InfraredTuner, self).__init__()
 

@@ -4,13 +4,13 @@ import math
 from ev3dev2.motor import LargeMotor, MoveTank
 
 from eva.lib.config import TankConfig
-from eva.lib.settings import LOW_SPEED_IN_PERCENT, TEST_SPEED_IN_PERCENT, NORMAL_SPEED_IN_PERCENT, \
-    HIGH_SPEED_IN_PERCENT, MAX_VELOCITY_IN_PERCENT, MotorsPortMapping
+from eva.lib.settings import LOW_VELOCITY_IN_PERCENT, TEST_VELOCITY_IN_PERCENT, NORMAL_VELOCITY_IN_PERCENT, \
+    HIGH_VELOCITY_IN_PERCENT, MAX_VELOCITY_IN_PERCENT, MotorsPortMapping
 
 logger = logging.getLogger()
 
 
-class BaseTank:
+class TankBase:
     def __init__(self, left_motor=MotorsPortMapping.LEFT_MOTOR, right_motor=MotorsPortMapping.RIGHT_MOTOR):
         self.config = TankConfig()
 
@@ -23,27 +23,23 @@ class BaseTank:
         return self._tank_pair.motors[self.right_motor].degrees
 
     @property
-    def max_velocity(self):
-        return self._tank_pair.motors[self.right_motor].max_speed
-
-    @property
     def low_velocity(self):
-        return LOW_SPEED_IN_PERCENT
+        return LOW_VELOCITY_IN_PERCENT
 
     @property
     def test_velocity(self):
-        return TEST_SPEED_IN_PERCENT
+        return TEST_VELOCITY_IN_PERCENT
 
     @property
     def normal_velocity(self):
-        return NORMAL_SPEED_IN_PERCENT
+        return NORMAL_VELOCITY_IN_PERCENT
 
     @property
     def high_velocity(self):
-        return HIGH_SPEED_IN_PERCENT
+        return HIGH_VELOCITY_IN_PERCENT
 
     @property
-    def max_power_in_percent(self):
+    def max_velocity(self):
         return MAX_VELOCITY_IN_PERCENT
 
     def forward(self, velocity):
@@ -66,15 +62,15 @@ class BaseTank:
         self._tank_pair.stop()  # TODO: check option brake
 
     def _get_calibrated_velocities_in_percent(self, velocity_left, velocity_right):
-        if velocity_left > self.max_power_in_percent:
-            return self.max_power_in_percent, velocity_right * self.max_power_in_percent / velocity_left
-        elif velocity_right > self.max_power_in_percent:
-            return velocity_left * self.max_power_in_percent / velocity_right, self.max_power_in_percent
+        if velocity_left > self.max_velocity:
+            return self.max_velocity, velocity_right * self.max_velocity / velocity_left
+        elif velocity_right > self.max_velocity:
+            return velocity_left * self.max_velocity / velocity_right, self.max_velocity
         else:
             return velocity_left, velocity_right
 
 
-class Tank(BaseTank):
+class Tank(TankBase):
     def __init__(self, left_motor=MotorsPortMapping.LEFT_MOTOR, right_motor=MotorsPortMapping.RIGHT_MOTOR):
         super(Tank, self).__init__(left_motor, right_motor)
 

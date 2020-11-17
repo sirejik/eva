@@ -87,10 +87,10 @@ def tune_reflected_intensity():
 
 
 def stop():
-    from eva.robots.tracker import Tracker
+    from eva.robots.traveler import Traveler
 
     logger.info('{name} stop started.'.format(name=ROBOT_NAME))
-    robot = Tracker()
+    robot = Traveler()
     robot.tank.stop()
     logger.info('{name} was stopped.'.format(name=ROBOT_NAME))
 
@@ -98,11 +98,11 @@ def stop():
 def square_movement():
     import math
 
-    from eva.robots.tracker import Tracker
+    from eva.robots.traveler import Traveler
     from eva.lib.command import MovementCommand, RotationCommand
 
     logger.info('{name} square movement started.'.format(name=ROBOT_NAME))
-    robot = Tracker([
+    robot = Traveler([
         MovementCommand(0.5),
         RotationCommand(math.pi / 2.0),
         MovementCommand(0.5),

@@ -5,7 +5,7 @@ from abc import ABCMeta, abstractmethod
 logger = logging.getLogger()
 
 
-class BaseRobot(metaclass=ABCMeta):
+class RobotBase(metaclass=ABCMeta):
     @abstractmethod
     def run(self):
         pass

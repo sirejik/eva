@@ -2,16 +2,16 @@ import logging
 
 from eva.lib.command import CommandList
 from eva.modules.tank import Tank
-from eva.robots.base_robot import BaseRobot
+from eva.robots.robot_base import RobotBase
 
 logger = logging.getLogger()
 
 
-class Tracker(BaseRobot):
+class Traveler(RobotBase):
     def __init__(self, command_list=None):
         self.tank = Tank()
         self.commands = command_list or []
-        super(Tracker, self).__init__()
+        super(Traveler, self).__init__()
 
     @property
     def velocity(self):

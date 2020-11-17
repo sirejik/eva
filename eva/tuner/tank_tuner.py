@@ -4,8 +4,8 @@ import math
 from ev3dev2.sensor.lego import ColorSensor
 
 from eva.lib.utils import FunctionResultWaiter
-from eva.modules.tank import BaseTank
-from eva.tuner.base_tuner import BaseTuner
+from eva.modules.tank import TankBase
+from eva.tuner.tuner_base import TunerBase
 
 logger = logging.getLogger()
 
@@ -13,10 +13,10 @@ TUNE_MOVEMENT_LENGTH = 2.0
 TUNE_MOVEMENT_ROTATION_COUNT = 10
 
 
-class TankTuner(BaseTuner):
+class TankTuner(TunerBase):
     def __init__(self):
         super(TankTuner, self).__init__()
-        self.tank = BaseTank()
+        self.tank = TankBase()
         self.color_sensor = ColorSensor()
 
         self._degrees_to_360_rotation = 0

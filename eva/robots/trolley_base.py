@@ -8,18 +8,18 @@ from eva.lib.config import TrolleyPIDConfig
 from eva.lib.regulator import PIDRegulator
 from eva.lib.utils import FunctionResultWaiter
 from eva.modules.colorsensor import ColorSensor
-from eva.modules.tank import BaseTank
-from eva.robots.base_robot import BaseRobot
+from eva.modules.tank import TankBase
+from eva.robots.robot_base import RobotBase
 
 logger = logging.getLogger()
 
 Measure = namedtuple('Measure', ['reflected_light_intensity'])
 
 
-class BaseTrolley(BaseRobot):
+class TrolleyBase(RobotBase):
     def __init__(self):
-        super(BaseRobot, self).__init__()
-        self.tank = BaseTank()
+        super(RobotBase, self).__init__()
+        self.tank = TankBase()
         self.color_sensor = ColorSensor()
 
         self.middle_reflected_light_intensity = (
@@ -95,4 +95,4 @@ class BaseTrolley(BaseRobot):
 
     @property
     def rotate_velocity(self):
-        return self.tank.max_power_in_percent
+        return self.tank.max_velocity

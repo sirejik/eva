@@ -2,8 +2,8 @@ import logging
 
 from eva.lib.utils import FunctionResultWaiter
 from eva.modules.colorsensor import ColorSensorBase
-from eva.modules.tank import BaseTank
-from eva.tuner.base_tuner import BaseTuner
+from eva.modules.tank import TankBase
+from eva.tuner.tuner_base import TunerBase
 
 logger = logging.getLogger()
 
@@ -11,11 +11,11 @@ LOW_REFLECTED_LIGHT_INTENSITY = 40
 HIGH_REFLECTED_LIGHT_INTENSITY = 60
 
 
-class ColorTuner(BaseTuner):
+class ColorTuner(TunerBase):
     def __init__(self):
         super(ColorTuner, self).__init__()
 
-        self.tank = BaseTank()
+        self.tank = TankBase()
         self.color_sensor = ColorSensorBase()
 
         self._min_reflected_light_intensity = 100

@@ -13,9 +13,9 @@ logger = logging.getLogger()
 LONG_BUTTON_PRESS_TIME = 3
 
 
-class BaseTuner(metaclass=ABCMeta):
+class TunerBase(metaclass=ABCMeta):
     def __init__(self):
-        super(BaseTuner, self).__init__()
+        super(TunerBase, self).__init__()
         self.touch_sensor = TouchSensor()
         self.sound = Sound()
 
