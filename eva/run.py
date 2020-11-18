@@ -26,73 +26,57 @@ def run(action):
 def follow_sensor():
     from eva.robots.follower import Follower
 
-    logger.info('{name} began to follow you.'.format(name=ROBOT_NAME))
     robot = Follower()
     robot.run()
-    logger.info('{name} found you.'.format(name=ROBOT_NAME))
 
 
 def trolley():
     from eva.robots.trolley import Trolley
 
-    logger.info('{name} began to follow you.'.format(name=ROBOT_NAME))
     robot = Trolley()
     robot.run()
-    logger.info('{name} found you.'.format(name=ROBOT_NAME))
 
 
 def trolley_tuner():
     from eva.tuner.trolley_tuner import TrolleyTuner
 
-    logger.info('{name} began to follow you.'.format(name=ROBOT_NAME))
     robot = TrolleyTuner()
     robot.tune()
-    logger.info('{name} found you.'.format(name=ROBOT_NAME))
 
 
 def trolley_tuner_on_track():
     from eva.tuner.trolley_tuner_on_track import TrolleyTunerOnTrack
 
-    logger.info('{name} began to follow you.'.format(name=ROBOT_NAME))
     robot = TrolleyTunerOnTrack()
     robot.tune()
-    logger.info('{name} found you.'.format(name=ROBOT_NAME))
 
 
 def tune_motion():
     from eva.tuner.tank_tuner import TankTuner
 
-    logger.info('The auto-tuning of movement started.')
     tuner = TankTuner()
     tuner.tune()
-    logger.info('The auto-tuning of movement finished.')
 
 
 def tune_infrared_sensor():
     from eva.tuner.ir_tuner import InfraredTuner
 
-    logger.info('The auto-tuning of infrared sensor started.')
     tuner = InfraredTuner()
     tuner.tune()
-    logger.info('The auto-tuning of infrared sensor finished.')
 
 
 def tune_reflected_intensity():
     from eva.tuner.color_tuner import ColorTuner
 
-    logger.info('The auto-tuning of reflected intensity started.')
     tuner = ColorTuner()
     tuner.tune()
-    logger.info('The auto-tuning of reflected intensity finished.')
 
 
 def stop():
-    from eva.robots.traveler import Traveler
+    from eva.modules.tank import TankBase
 
-    logger.info('{name} stop started.'.format(name=ROBOT_NAME))
-    robot = Traveler()
-    robot.tank.stop()
-    logger.info('{name} was stopped.'.format(name=ROBOT_NAME))
+    robot = TankBase()
+    robot.stop()
 
 
 def square_movement():
@@ -101,7 +85,6 @@ def square_movement():
     from eva.robots.traveler import Traveler
     from eva.lib.command import MovementCommand, RotationCommand
 
-    logger.info('{name} square movement started.'.format(name=ROBOT_NAME))
     robot = Traveler([
         MovementCommand(0.5),
         RotationCommand(math.pi / 2.0),
@@ -113,4 +96,3 @@ def square_movement():
         RotationCommand(math.pi / 2.0)
     ])
     robot.run()
-    logger.info('{name} movement was stopped.'.format(name=ROBOT_NAME))

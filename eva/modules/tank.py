@@ -14,13 +14,9 @@ class TankBase:
     def __init__(self, left_motor=MotorsPortMapping.LEFT_MOTOR, right_motor=MotorsPortMapping.RIGHT_MOTOR):
         self.config = TankConfig()
 
-        self.left_motor = left_motor
-        self.right_motor = right_motor
-        self._tank_pair = MoveTank(self.left_motor, self.right_motor, motor_class=LargeMotor)
-
-    @property
-    def motor_degrees(self):
-        return self._tank_pair.motors[self.right_motor].degrees
+        self._left_motor = left_motor
+        self._right_motor = right_motor
+        self._tank_pair = MoveTank(self._left_motor, self._right_motor, motor_class=LargeMotor)
 
     @property
     def low_velocity(self):
@@ -41,6 +37,10 @@ class TankBase:
     @property
     def max_velocity(self):
         return MAX_VELOCITY_IN_PERCENT
+
+    @property
+    def motor_degrees(self):
+        return self._tank_pair.motors[self._right_motor].degrees
 
     def forward(self, velocity):
         self._tank_pair.on(left_speed=velocity, right_speed=velocity)
@@ -75,9 +75,10 @@ class Tank(TankBase):
         super(Tank, self).__init__(left_motor, right_motor)
 
         self.config.verify()
-        self.degrees_to_360_rotation = self.config.degrees_to_360_rotation
-        self.degrees_to_1_meter_movement = self.config.degrees_to_1_meter_movement
-        self.furrow = self.config.furrow
+
+        self._degrees_to_360_rotation = self.config.degrees_to_360_rotation
+        self._degrees_to_1_meter_movement = self.config.degrees_to_1_meter_movement
+        self._furrow = self.config.furrow
 
     def move_in_arc(self, velocity, radius):
         if radius is None:
@@ -87,16 +88,16 @@ class Tank(TankBase):
         if radius == 0:
             self.stop()
 
-        velocity_coefficient = self.furrow * 0.5 / radius
+        velocity_coefficient = self._furrow * 0.5 / radius
         velocity_left = velocity * (1 + velocity_coefficient)
         velocity_right = velocity * (1 - velocity_coefficient)
 
         self.on(velocity_left, velocity_right)
 
     def forward_for_degrees(self, velocity, way_length):
-        degrees = self.degrees_to_1_meter_movement * way_length
+        degrees = self._degrees_to_1_meter_movement * way_length
         self._tank_pair.on_for_degrees(left_speed=velocity, right_speed=velocity, degrees=degrees)
 
     def rotate_for_degrees(self, velocity, degrees):
-        degrees = self.degrees_to_360_rotation * degrees / (2.0 * math.pi)
+        degrees = self._degrees_to_360_rotation * degrees / (2.0 * math.pi)
         self._tank_pair.on_for_degrees(left_speed=velocity, right_speed=-velocity, degrees=degrees)

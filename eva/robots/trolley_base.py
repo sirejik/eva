@@ -19,80 +19,79 @@ Measure = namedtuple('Measure', ['reflected_light_intensity'])
 class TrolleyBase(RobotBase):
     def __init__(self):
         super(RobotBase, self).__init__()
-        self.tank = TankBase()
-        self.color_sensor = ColorSensor()
 
-        self.middle_reflected_light_intensity = (
-            self.color_sensor.config.min_reflected_light_intensity +
-            self.color_sensor.config.max_reflected_light_intensity
+        self._tank = TankBase()
+        self._color_sensor = ColorSensor()
+        self._pid_config = TrolleyPIDConfig()
+        self._regulator = None
+
+        self._middle_reflected_light_intensity = (
+             self._color_sensor.config.min_reflected_light_intensity +
+             self._color_sensor.config.max_reflected_light_intensity
+        ) * 0.5
+        self._spread_reflected_light_intensity = (
+             self._color_sensor.config.max_reflected_light_intensity -
+             self._color_sensor.config.min_reflected_light_intensity
         ) * 0.5
 
-        self.spread_reflected_light_intensity = (
-            self.color_sensor.config.max_reflected_light_intensity -
-            self.color_sensor.config.min_reflected_light_intensity
-        ) * 0.5
+    def _run(self):
+        self._prepare()
+        self._find_track()
+        self._move_on_track()
+        self._complete()
 
-        self.regulator = None
-        self.pid_config = TrolleyPIDConfig()
+    def _prepare(self):
+        self._regulator = self._create_regulator()
 
-    def run(self):
-        self.prepare()
-        self.find_track()
-        self.move_on_track()
-        self.complete()
-
-    def prepare(self):
-        self.regulator = self.create_regulator()
-
-    def create_regulator(self) -> PIDRegulator:
-        return PIDRegulator(self.pid_config.kp, self.pid_config.ki, self.pid_config.kd, 0)
-
-    def find_track(self):
-        self.tank.forward(self.tank.test_velocity)
+    def _find_track(self):
+        self._tank.forward(self._tank.test_velocity)
 
         FunctionResultWaiter(
-            lambda: self.color_sensor.reflected_light_intensity, None,
+            lambda: self._color_sensor.reflected_light_intensity, None,
             check_function=lambda reflected_light_intensity:
-                reflected_light_intensity >= self.middle_reflected_light_intensity,
+                reflected_light_intensity >= self._middle_reflected_light_intensity,
         ).run()
 
-    def move_on_track(self):
-        FunctionResultWaiter(self.moving, None, check_function=self.stopping, interval_between_attempts=0).run()
+    def _move_on_track(self):
+        FunctionResultWaiter(self._moving, None, check_function=self._stopping, interval_between_attempts=0).run()
 
-    def complete(self):
-        self.tank.stop()
+    def _complete(self):
+        self._tank.stop()
 
-    def moving(self):
-        measure = self.get_measure()
-        color = self.get_color_from_measure(measure)
+    def _create_regulator(self) -> PIDRegulator:
+        return PIDRegulator(self._pid_config.kp, self._pid_config.ki, self._pid_config.kd, 0)
 
-        power = self.regulator.get_power(
-            (color - self.middle_reflected_light_intensity) / self.spread_reflected_light_intensity
+    def _moving(self):
+        measure = self._get_measure()
+        color = self._get_color_from_measure(measure)
+
+        power = self._regulator.get_power(
+            (color - self._middle_reflected_light_intensity) / self._spread_reflected_light_intensity
         )
 
-        rotate_velocity = self.rotate_velocity * power
-        velocity_left = self.forward_velocity + rotate_velocity
-        velocity_right = self.forward_velocity - rotate_velocity
-        self.tank.on(velocity_left, velocity_right)
+        rotate_velocity = self._rotate_velocity * power
+        velocity_left = self._forward_velocity + rotate_velocity
+        velocity_right = self._forward_velocity - rotate_velocity
+        self._tank.on(velocity_left, velocity_right)
 
         return measure
 
+    def _get_measure(self) -> Measure:
+        return Measure(reflected_light_intensity=self._color_sensor.reflected_light_intensity)
+
     @abstractmethod
-    def stopping(self, measure):
+    def _stopping(self, measure: Measure):
         pass
 
-    def get_measure(self):
-        return Measure(reflected_light_intensity=self.color_sensor.reflected_light_intensity)
-
     @staticmethod
-    def get_color_from_measure(measure):
+    def _get_color_from_measure(measure: Measure):
         return measure.reflected_light_intensity
 
     @property
     @abstractmethod
-    def forward_velocity(self):
+    def _forward_velocity(self):
         pass
 
     @property
-    def rotate_velocity(self):
-        return self.tank.max_velocity
+    def _rotate_velocity(self):
+        return self._tank.max_velocity

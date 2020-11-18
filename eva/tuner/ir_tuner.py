@@ -24,7 +24,7 @@ class InfraredTuner(TunerBase):
         self.tank = Tank()
         self.infrared_sensor = InfraredSensor()
 
-    def process(self):
+    def _process(self):
         def point_coord(_x, _y):
             radius = _x / float(DISTANCE_SEGMENT)
             angle = _y * RADIUS_STEP
@@ -66,5 +66,5 @@ class InfraredTuner(TunerBase):
         heading_image.save("heading_image.png")
         distance_image.save("distance_image.png")
 
-    def save_to_config(self):
+    def _save_to_config(self):
         raise

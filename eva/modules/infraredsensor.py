@@ -8,7 +8,7 @@ logger = logging.getLogger()
 
 class InfraredSensor:
     def __init__(self):
-        self.ir = InfraredSensorBase()
+        self._infrared_sensor = InfraredSensorBase()
 
     @staticmethod
     def is_sensor_enabled(distance):
@@ -31,4 +31,4 @@ class InfraredSensor:
         return math.fabs(heading) <= 13
 
     def heading_and_distance(self):
-        return self.ir.heading_and_distance()
+        return self._infrared_sensor.heading_and_distance()

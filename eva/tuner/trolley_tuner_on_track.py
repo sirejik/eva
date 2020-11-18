@@ -9,14 +9,15 @@ class TrolleyTunerOnTrack(TrolleyTunerBase):
     def __init__(self):
         super(TrolleyTunerOnTrack, self).__init__()
 
-        self.params.update({'forward_velocity': 0})
+        self._pid_config.verify_pid_parameters()
+        self._params.update({'forward_velocity': 0})
 
-    def process(self):
-        self.maximize_params(lambda x: {'forward_velocity': x})
+    def _process(self):
+        self._maximize_params(lambda x: {'forward_velocity': x})
 
     @property
-    def forward_velocity(self):
-        return self.params.forward_velocity
+    def _forward_velocity(self):
+        return self._params.forward_velocity
 
-    def save_to_config(self):
-        self.pid_config.max_velocity = self.forward_velocity
+    def _save_to_config(self):
+        self._pid_config.max_velocity = self._forward_velocity

@@ -1,9 +1,6 @@
-import inspect
 import logging
-import time
 import sys
-
-from functools import wraps
+import time
 
 from eva.lib.settings import TIME_INTERVAL_BETWEEN_ATTEMPTS, LOG_FILE_NAME
 
@@ -41,7 +38,7 @@ class FunctionResultWaiter(object):
         self._interval_between_attempts = kwargs.get('interval_between_attempts', TIME_INTERVAL_BETWEEN_ATTEMPTS)
         self._throw_exception_on_failure = kwargs.get('throw_exception_on_failure', True)
 
-    def is_unlimited_attempts(self):
+    def _is_unlimited_attempts(self):
         return self._max_attempts <= 0
 
     def run(self, *args, **kwargs):
@@ -51,7 +48,7 @@ class FunctionResultWaiter(object):
         are the arguments for the function being executed.
         """
         attempt = 0
-        while attempt < self._max_attempts or self.is_unlimited_attempts():
+        while attempt < self._max_attempts or self._is_unlimited_attempts():
             result = self._func(*args, **kwargs)
             if self._check_function(result):
                 return result
@@ -76,52 +73,3 @@ def configure_logging():
     file_logger_handler.setLevel(logging.NOTSET)
     file_logger_handler.setFormatter(formatter)
     logger.addHandler(file_logger_handler)
-
-
-def trace(outer_func=None):
-    class LoggingContext:
-        SPACE = ' '
-
-        def __init__(self, frame_deep, func, *args, **kwargs):
-            self.func = func
-            self.args = args
-            self.kwargs = kwargs
-            self.elapsed_time = 0
-            self.frame_deep = frame_deep
-            self.template = '%s{mark}[%s] %s {info}' % (
-                LoggingContext.SPACE * self.frame_deep, self.frame_deep, self.func.__name__
-            )
-
-        def __enter__(self):
-            logger.debug(self.template.format(mark='+++', info='(%s, %s)' % (self.args, self.kwargs)))
-            return self
-
-        def __exit__(self, exc_type, exc_value, traceback):
-            elapsed_time = '[{elapsed_time:.3f}] second(s)'.format(elapsed_time=self.elapsed_time)
-
-            if exc_type:
-                logger.debug(
-                    self.template.format(mark='...', info='*** INTERRUPTED BY EXCEPTION *** %s' % elapsed_time)
-                )
-            else:
-                logger.debug(self.template.format(mark='---', info=elapsed_time))
-
-        def run(self):
-            start_time = time.time()
-            result = self.func(*self.args, **self.kwargs)
-            end_time = time.time()
-            self.elapsed_time = end_time - start_time
-            logger.debug('%s   return %s' % (LoggingContext.SPACE * self.frame_deep, result))
-            return result
-
-    def decorator(func):
-        @wraps(func)
-        def wrapper(*args, **kwargs):
-            current_frame_code, inspect_stack = inspect.currentframe().f_code, inspect.stack()
-            frame_deep = len([x[0].f_code for x in inspect_stack if x[0].f_code == current_frame_code]) - 1
-            with LoggingContext(frame_deep, func, *args, **kwargs) as o:
-                return o.run()
-
-        return wrapper
-
-    return decorator(outer_func) if outer_func and inspect.isfunction(outer_func) else decorator

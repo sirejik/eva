@@ -16,75 +16,77 @@ TUNE_MOVEMENT_ROTATION_COUNT = 10
 class TankTuner(TunerBase):
     def __init__(self):
         super(TankTuner, self).__init__()
-        self.tank = TankBase()
-        self.color_sensor = ColorSensor()
+
+        self._tank = TankBase()
+        self._color_sensor = ColorSensor()
 
         self._degrees_to_360_rotation = 0
         self._degrees_to_1_meter_movement = 0
 
-    def velocity(self):
-        return self.tank.test_velocity
+    def _process(self):
+        self._tune_movement()
+        self._wait_button_press()
 
-    def process(self):
-        self.tune_movement()
-        self.wait_button_press()
+        self._tune_rotation()
 
-        self.tune_rotation()
-
-    def save_to_config(self):
-        self.tank.config.degrees_to_360_rotation = math.fabs(
+    def _save_to_config(self):
+        self._tank.config._degrees_to_360_rotation = math.fabs(
             float(self._degrees_to_360_rotation) / float(TUNE_MOVEMENT_ROTATION_COUNT)
         )
 
-        self.tank.config.degrees_to_1_meter_movement = math.fabs(
+        self._tank.config._degrees_to_1_meter_movement = math.fabs(
             float(self._degrees_to_1_meter_movement) / float(TUNE_MOVEMENT_LENGTH)
         )
 
-        self.tank.config.furrow = math.fabs(
-            self.tank.config.degrees_to_360_rotation / (math.pi * self.tank.config.degrees_to_1_meter_movement)
+        self._tank.config._furrow = math.fabs(
+            self._tank.config._degrees_to_360_rotation / (math.pi * self._tank.config._degrees_to_1_meter_movement)
         )
 
     @property
-    def indicator_color(self):
-        return self.color_sensor.COLOR_WHITE
+    def _velocity(self):
+        return self._tank.test_velocity
 
-    def tune_rotation(self):
-        color = self.indicator_color
+    @property
+    def _indicator_color(self):
+        return self._color_sensor.COLOR_WHITE
 
-        self.tank.stop()
+    def _tune_rotation(self):
+        color = self._indicator_color
+
+        self._tank.stop()
         self._rotate_to_color(color)
 
-        start_degrees = self.tank.motor_degrees
+        start_degrees = self._tank.motor_degrees
         for i in range(TUNE_MOVEMENT_ROTATION_COUNT):
             self._rotate_to_color(color)
 
-        self.tank.stop()
-        finish_degrees = self.tank.motor_degrees
+        self._tank.stop()
+        finish_degrees = self._tank.motor_degrees
         self._degrees_to_360_rotation = math.fabs(
             float(finish_degrees - start_degrees) / float(TUNE_MOVEMENT_ROTATION_COUNT)
         )
 
-    def tune_movement(self):
-        color = self.indicator_color
+    def _tune_movement(self):
+        color = self._indicator_color
 
-        self.tank.stop()
-        start_degrees = self.tank.motor_degrees
+        self._tank.stop()
+        start_degrees = self._tank.motor_degrees
         self._forward_to_color(color)
 
-        self.tank.stop()
-        finish_degrees = self.tank.motor_degrees
+        self._tank.stop()
+        finish_degrees = self._tank.motor_degrees
 
         self._degrees_to_1_meter_movement = math.fabs(
             float(finish_degrees - start_degrees) / float(TUNE_MOVEMENT_LENGTH)
         )
 
     def _rotate_to_color(self, color):
-        self.tank.rotate(self.tank.test_velocity, True)
+        self._tank.rotate(self._velocity, True)
 
-        FunctionResultWaiter(lambda: self.color_sensor.color, None, check_function=lambda x: x != color).run()
-        FunctionResultWaiter(lambda: self.color_sensor.color, None, expected_result=color).run()
+        FunctionResultWaiter(lambda: self._color_sensor.color, None, check_function=lambda x: x != color).run()
+        FunctionResultWaiter(lambda: self._color_sensor.color, None, expected_result=color).run()
 
     def _forward_to_color(self, color):
-        self.tank.forward(self.tank.test_velocity)
+        self._tank.forward(self._velocity)
 
-        FunctionResultWaiter(lambda: self.color_sensor.color, None, expected_result=color).run()
+        FunctionResultWaiter(lambda: self._color_sensor.color, None, expected_result=color).run()

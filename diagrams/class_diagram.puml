@@ -67,8 +67,8 @@ Trolley --|> TrolleyBase
 interface TunerBase {
         touch_sensor: TouchSensor
         sound: Sound
-        process()
-        save_to_config()
+        _process()
+        _save_to_config()
 }
 
 class ColorTuner {

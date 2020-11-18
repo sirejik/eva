@@ -2,7 +2,7 @@ import math
 
 from ev3dev2.motor import OUTPUT_B, OUTPUT_C
 
-CONFIG_FILE = 'config.ini'
+CONFIG_FILE = '_config.ini'
 LOG_FILE_NAME = 'logs/debug.log'
 
 ROBOT_NAME = 'Eva'

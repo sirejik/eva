@@ -5,21 +5,23 @@ logger = logging.getLogger()
 
 class PIDRegulator:
     def __init__(self, kp, ki, kd, r):
-        self.power = 0
-        self.en = 0
-        self.en1 = 0
+        self._kp = kp
+        self._ki = ki
+        self._kd = kd
+        self._r = r
 
-        self.kp = kp
-        self.ki = ki
-        self.kd = kd
-        self.r = r
-
-        self.mistake = 0
+        self._power = 0
+        self._en = 0
+        self._en1 = 0
+        self._mistake = 0
 
     def get_power(self, value):
-        en, en1, en2, power_old = self.r - value, self.en, self.en1, self.power
-        power = power_old + self.kp * (en - en1) + self.ki * en + self.kd * (en - 2 * en1 + en2)
-        self.en, self.en1, self.power = en, en1, power
+        en, en1, en2, power_old = self._r - value, self._en, self._en1, self._power
+        power = power_old + self._kp * (en - en1) + self._ki * en + self._kd * (en - 2 * en1 + en2)
+        self._en, self._en1, self._power = en, en1, power
 
-        self.mistake += abs(en)
+        self._mistake += abs(en)
         return power
+
+    def get_mistake(self):
+        return self._mistake

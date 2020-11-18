@@ -9,17 +9,18 @@ logger = logging.getLogger()
 
 class Traveler(RobotBase):
     def __init__(self, command_list=None):
-        self.tank = Tank()
-        self.commands = command_list or []
+        self._tank = Tank()
+        self._commands = command_list or []
+
         super(Traveler, self).__init__()
 
-    @property
-    def velocity(self):
-        return self.tank.normal_velocity
-
-    def run(self):
-        for command in self.commands:
+    def _run(self):
+        for command in self._commands:
             if command.name == CommandList.MOVEMENT:
-                self.tank.forward_for_degrees(self.velocity, command.way_length)
+                self._tank.forward_for_degrees(self._velocity, command.way_length)
             elif command.name == CommandList.ROTATION:
-                self.tank.rotate_for_degrees(self.velocity, command.angle)
+                self._tank.rotate_for_degrees(self._velocity, command.angle)
+
+    @property
+    def _velocity(self):
+        return self._tank.normal_velocity
