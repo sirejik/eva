@@ -5,9 +5,9 @@ from eva.tuner.trolley_tuner_base import TrolleyTunerBase
 logger = logging.getLogger()
 
 
-class TrolleyTunerOnTrack(TrolleyTunerBase):
+class TrolleyVelocityTuner(TrolleyTunerBase):
     def __init__(self):
-        super(TrolleyTunerOnTrack, self).__init__()
+        super(TrolleyVelocityTuner, self).__init__()
 
         self._pid_config.verify_pid_parameters()
         self._params.update({'forward_velocity': 0})
@@ -20,4 +20,5 @@ class TrolleyTunerOnTrack(TrolleyTunerBase):
         return self._params.forward_velocity
 
     def _save_to_config(self):
-        self._pid_config.max_velocity = self._forward_velocity
+        self._pid_config.max_forward_velocity = self._forward_velocity
+        self._pid_config.save()

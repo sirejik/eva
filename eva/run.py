@@ -78,12 +78,12 @@ def create_tank_tuner():
 
 
 def create_trolley_tuner():
-    from eva.tuner.trolley_tuner import TrolleyTuner
+    from eva.tuner.trolley_pid_regulator_tuner import TrolleyPIDRegulatorTuner
 
-    return TrolleyTuner()
+    return TrolleyPIDRegulatorTuner()
 
 
 def create_trolley_tuner_on_track():
-    from eva.tuner.trolley_tuner_on_track import TrolleyTunerOnTrack
+    from eva.tuner.trolley_velocity_tuner import TrolleyVelocityTuner
 
-    return TrolleyTunerOnTrack()
+    return TrolleyVelocityTuner()

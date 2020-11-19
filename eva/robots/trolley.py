@@ -13,7 +13,7 @@ class Trolley(TrolleyBase):
 
     @property
     def _forward_velocity(self):
-        return self._pid_config.max_velocity
+        return self._pid_config.max_forward_velocity
 
     def _stopping(self, measure: Measure):
         return False

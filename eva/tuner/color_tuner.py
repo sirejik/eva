@@ -38,6 +38,7 @@ class ColorTuner(TunerBase):
     def _save_to_config(self):
         self._color_sensor.config.min_reflected_light_intensity = self._min_reflected_light_intensity
         self._color_sensor.config.max_reflected_light_intensity = self._max_reflected_light_intensity
+        self._color_sensor.config.save()
 
     @property
     def _velocity(self):

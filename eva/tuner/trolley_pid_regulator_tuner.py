@@ -11,9 +11,9 @@ MAX_EXTREMUM_NUMBER = 20
 MAX_UNSTABLE_MEASURE_NUMBER = 50
 
 
-class TrolleyTuner(TrolleyTunerBase):
+class TrolleyPIDRegulatorTuner(TrolleyTunerBase):
     def __init__(self):
-        super(TrolleyTuner, self).__init__()
+        super(TrolleyPIDRegulatorTuner, self).__init__()
 
         self._low_stable_reflected_light_intensity = self._middle_reflected_light_intensity - MAX_STABLE_DEVIATION
         self._high_stable_reflected_light_intensity = self._middle_reflected_light_intensity + MAX_STABLE_DEVIATION
@@ -44,7 +44,7 @@ class TrolleyTuner(TrolleyTunerBase):
         return 0
 
     def _is_system_stable(self):
-        if super(TrolleyTuner, self)._is_system_stable() is False:
+        if super(TrolleyPIDRegulatorTuner, self)._is_system_stable() is False:
             return False
 
         if self._params.stable_measure_number > MAX_STABLE_MEASURE_NUMBER:
@@ -62,10 +62,10 @@ class TrolleyTuner(TrolleyTunerBase):
         if self._params.unstable_measure_number > MAX_UNSTABLE_MEASURE_NUMBER:
             return True
 
-        return super(TrolleyTuner, self)._stopping(measure)
+        return super(TrolleyPIDRegulatorTuner, self)._stopping(measure)
 
     def _moving(self):
-        measures = super(TrolleyTuner, self)._moving()
+        measures = super(TrolleyPIDRegulatorTuner, self)._moving()
         self._process_measures(measures)
         return measures
 
@@ -100,6 +100,7 @@ class TrolleyTuner(TrolleyTunerBase):
         self._pid_config.kp = self._params.kp
         self._pid_config.ki = self._params.ki
         self._pid_config.kd = self._params.kd
+        self._pid_config.save()
 
     def _create_regulator(self) -> PIDRegulator:
         return PIDRegulator(self._params.kp, self._params.ki, self._params.kd, 0)

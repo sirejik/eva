@@ -76,9 +76,9 @@ class Tank(TankBase):
 
         self.config.verify()
 
-        self._degrees_to_360_rotation = self.config.degrees_to_360_rotation
-        self._degrees_to_1_meter_movement = self.config.degrees_to_1_meter_movement
-        self._furrow = self.config.furrow
+        self._degrees_to_360_rotation = self.config.degrees_for_360_rotation
+        self._degrees_to_1_meter_movement = self.config.degrees_for_1_meter_movement
+        self._furrow = self.config.track_spacing
 
     def move_in_arc(self, velocity, radius):
         if radius is None:

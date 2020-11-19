@@ -33,14 +33,13 @@ class TankTuner(TunerBase):
         self._tank.config._degrees_to_360_rotation = math.fabs(
             float(self._degrees_to_360_rotation) / float(TUNE_MOVEMENT_ROTATION_COUNT)
         )
-
         self._tank.config._degrees_to_1_meter_movement = math.fabs(
             float(self._degrees_to_1_meter_movement) / float(TUNE_MOVEMENT_LENGTH)
         )
-
         self._tank.config._furrow = math.fabs(
             self._tank.config._degrees_to_360_rotation / (math.pi * self._tank.config._degrees_to_1_meter_movement)
         )
+        self._tank.config.save()
 
     @property
     def _velocity(self):

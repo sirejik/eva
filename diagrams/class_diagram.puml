@@ -100,12 +100,12 @@ class TrolleyTunerBase {
 TrolleyTunerBase --|> TrolleyBase
 TrolleyTunerBase --|> TunerBase
 
-class TrolleyTuner {
+class TrolleyPIDRegulatorTuner {
 }
-TrolleyTuner --|> TrolleyTunerBase
+TrolleyPIDRegulatorTuner --|> TrolleyTunerBase
 
-class TrolleyTunerOnTrack {
+class TrolleyVelocityTuner {
 }
-TrolleyTunerOnTrack --|> TrolleyTunerBase
+TrolleyVelocityTuner --|> TrolleyTunerBase
 
 @enduml
