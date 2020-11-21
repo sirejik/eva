@@ -1,70 +1,70 @@
 import logging
-import math
 import time
 
-from PIL import Image, ImageDraw
-
+from eva.lib.parameters import Parameters
 from eva.modules.tank import Tank
-from eva.modules.infraredsensor import InfraredSensor
+from eva.modules.infraredsensor import InfraredSensorBase
 from eva.tuner.tuner_base import TunerBase
 
 logger = logging.getLogger()
 
-IMAGE_SIZE = 400
-RADIUS_SEGMENT = 16
-RADIUS_STEP = 2.0 * math.pi / float(RADIUS_SEGMENT)
-DISTANCE_SEGMENT = 8
-DISTANCE_STEP = -0.1
+CIRCLE_NUMBER = 8
+SECTOR_NUMBER = 16
+SECTOR_ANGLE = 2.0 * 360 / float(SECTOR_NUMBER)
+CIRCLE_STEP = 0.1
+DELAY_BETWEEN_MEASUREMENTS = 0.1
 
 
 class InfraredTuner(TunerBase):
     def __init__(self):
         super(InfraredTuner, self).__init__()
 
-        self.tank = Tank()
-        self.infrared_sensor = InfraredSensor()
+        self._tank = Tank()
+        self._infrared_sensor = InfraredSensorBase()
+
+        self._params = Parameters({'high_heading': 0})
+
+    @property
+    def _velocity(self):
+        return self._tank.test_velocity
 
     def _process(self):
-        def point_coord(_x, _y):
-            radius = _x / float(DISTANCE_SEGMENT)
-            angle = _y * RADIUS_STEP
-            return int(0.5 * IMAGE_SIZE * (1 - radius * math.sin(angle))), \
-                int(0.5 * IMAGE_SIZE * (1 - radius * math.cos(angle)))
+        infrared_sensor_map = []
+        for x in range(0, CIRCLE_NUMBER):
+            infrared_sensor_map[x] = []
+            begin_position = self._tank.motor_degrees
 
-        def draw_polygon(drawer, _polygon, value, min_value, max_value):
-            color = int(0 if value is None else 255 * (value - min_value) / float(max_value - min_value))
-            drawer.polygon(_polygon, fill=(color, color, color), outline=(color, color, color))
+            for y in range(0, SECTOR_NUMBER):
+                time.sleep(DELAY_BETWEEN_MEASUREMENTS)
+                heading, _ = self._infrared_sensor.heading_and_distance()
+                infrared_sensor_map[x][y] = heading
 
-        def write_value(drawer, coord, value):
-            drawer.text(coord, str(value), fill="red", align="center")
+                self._tank.rotate_on_angle(self._velocity, SECTOR_ANGLE)
 
-        heading_image = Image.new('RGB', (IMAGE_SIZE, IMAGE_SIZE), (0, 0, 0))
-        heading_image_drawer = ImageDraw.Draw(heading_image)
-        distance_image = Image.new('RGB', (IMAGE_SIZE, IMAGE_SIZE), (0, 0, 0))
-        distance_image_drawer = ImageDraw.Draw(distance_image)
+            end_position = self._tank.motor_degrees
+            self._tank.rotate_on_degrees(self._velocity, begin_position - end_position)
+            self._tank.forward_on_distance(self._velocity, -CIRCLE_STEP)
 
-        for x in range(0, DISTANCE_SEGMENT):
-            for y in range(0, RADIUS_SEGMENT):
-                time.sleep(0.25)
-                heading, distance = self.infrared_sensor.heading_and_distance()
+        circles = []
+        for x in range(0, CIRCLE_NUMBER):
+            circle = infrared_sensor_map[x]
 
-                polygon = [
-                    point_coord(x, y - 0.5), point_coord(x, y + 0.5), point_coord(x + 1, y + 0.5),
-                    point_coord(x + 1, y - 0.5)
-                ]
+            circles.append(
+                self._get_sector_count_in_front_of(circle) + self._get_sector_count_in_front_of(circle[::-1])
+            )
 
-                draw_polygon(heading_image_drawer, polygon, heading, -25, 25)
-                write_value(heading_image_drawer, point_coord(x + 0.5, y), heading)
-                draw_polygon(distance_image_drawer, polygon, distance, 0, 100)
-                write_value(distance_image_drawer, point_coord(x + 0.5, y), distance)
+        self._params.high_heading = 0.5 * sum(circles) / len(circles)
 
-                self.tank.rotate_for_degrees(self.tank.test_velocity, RADIUS_STEP)
+    def _get_sector_count_in_front_of(self, circle):
+        sector_count = 0
+        for x in circle:
+            if not self._infrared_sensor.is_beacon_in_front_of(x):
+                return sector_count
 
-            self.tank.rotate_for_degrees(self.tank.test_velocity, - 2 * math.pi)
-            self.tank.forward_for_degrees(self.tank.test_velocity, DISTANCE_STEP)
+            sector_count += 1
 
-        heading_image.save("heading_image.png")
-        distance_image.save("distance_image.png")
+        return sector_count
 
     def _save_to_config(self):
-        raise
+        self._infrared_sensor.config.high_heading = self._params.high_heading
+        self._infrared_sensor.config.save()

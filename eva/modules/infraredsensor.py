@@ -1,14 +1,18 @@
 import logging
 import math
 
-from ev3dev2.sensor.lego import InfraredSensor as InfraredSensorBase
+from ev3dev2.sensor.lego import InfraredSensor as EV3InfraredSensor
+
+from eva.lib.config import InfraredSensorConfig
 
 logger = logging.getLogger()
 
 
-class InfraredSensor:
+class InfraredSensorBase:
     def __init__(self):
-        self._infrared_sensor = InfraredSensorBase()
+        self.config = InfraredSensorConfig()
+
+        self._infrared_sensor = EV3InfraredSensor()
 
     @staticmethod
     def is_sensor_enabled(distance):
@@ -27,8 +31,19 @@ class InfraredSensor:
         return math.fabs(heading) <= 3
 
     @staticmethod
-    def is_sensor_in_sector(heading):
-        return math.fabs(heading) <= 13
+    def is_beacon_in_front_of(heading):
+        return heading is not None and heading < 25
 
     def heading_and_distance(self):
         return self._infrared_sensor.heading_and_distance()
+
+
+class InfraredSensor(InfraredSensorBase):
+    def __init__(self):
+        super(InfraredSensor, self).__init__()
+
+        self.config.verify()
+
+    def is_sensor_in_sector(self, heading):
+        return math.fabs(heading) <= self.config.high_heading
+

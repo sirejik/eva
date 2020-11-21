@@ -36,20 +36,18 @@ def create_follower():
 
 
 def create_traveler():
-    import math
-
     from eva.robots.traveler import Traveler
     from eva.lib.command import MovementCommand, RotationCommand
 
     return Traveler([
             MovementCommand(0.5),
-            RotationCommand(math.pi / 2.0),
+            RotationCommand(90),
             MovementCommand(0.5),
-            RotationCommand(math.pi / 2.0),
+            RotationCommand(90),
             MovementCommand(0.5),
-            RotationCommand(math.pi / 2.0),
+            RotationCommand(90),
             MovementCommand(0.5),
-            RotationCommand(math.pi / 2.0)
+            RotationCommand(90)
         ])
 
 

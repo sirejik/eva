@@ -10,16 +10,16 @@ class CommandBase(metaclass=ABCMeta):
 
 
 class MovementCommand(CommandBase):
-    def __init__(self, way_length):
-        self.way_length = way_length
+    def __init__(self, distance):
+        self._distance = distance
 
     def execute(self, tank: Tank, velocity):
-        tank.forward_for_degrees(velocity, self.way_length)
+        tank.forward_on_distance(velocity, self._distance)
 
 
 class RotationCommand(CommandBase):
     def __init__(self, angle):
-        self.angle = angle
+        self._angle = angle
 
     def execute(self, tank: Tank, velocity):
-        tank.rotate_for_degrees(velocity, self.angle)
+        tank.rotate_on_angle(velocity, self._angle)

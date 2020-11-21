@@ -1,5 +1,4 @@
 import logging
-import math
 
 from ev3dev2.motor import LargeMotor, MoveTank
 
@@ -94,10 +93,13 @@ class Tank(TankBase):
 
         self.on(velocity_left, velocity_right)
 
-    def forward_for_degrees(self, velocity, way_length):
-        degrees = self._degrees_to_1_meter_movement * way_length
+    def forward_on_distance(self, velocity, distance):
+        degrees = self._degrees_to_1_meter_movement * distance
         self._tank_pair.on_for_degrees(left_speed=velocity, right_speed=velocity, degrees=degrees)
 
-    def rotate_for_degrees(self, velocity, degrees):
-        degrees = self._degrees_to_360_rotation * degrees / (2.0 * math.pi)
+    def rotate_on_angle(self, velocity, angle):
+        degrees = self._degrees_to_360_rotation * angle / 360
+        self._tank_pair.on_for_degrees(left_speed=velocity, right_speed=-velocity, degrees=degrees)
+
+    def rotate_on_degrees(self, velocity, degrees):
         self._tank_pair.on_for_degrees(left_speed=velocity, right_speed=-velocity, degrees=degrees)

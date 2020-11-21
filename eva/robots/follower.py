@@ -1,13 +1,15 @@
 import logging
 import math
 
-from eva.lib.settings import RADIAN_IN_HEADING, METER_IN_DISTANCE
 from eva.lib.utils import FunctionResultWaiter
 from eva.modules.infraredsensor import InfraredSensor
 from eva.modules.tank import Tank
 from eva.robots.robot_base import RobotBase
 
 logger = logging.getLogger()
+
+RADIAN_IN_HEADING = math.pi / 80.0
+METER_IN_DISTANCE = 2.3 / 100.0
 
 
 class Follower(RobotBase):

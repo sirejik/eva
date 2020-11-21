@@ -3,6 +3,7 @@ import math
 
 from ev3dev2.sensor.lego import ColorSensor
 
+from eva.lib.parameters import Parameters
 from eva.lib.utils import FunctionResultWaiter
 from eva.modules.tank import TankBase
 from eva.tuner.tuner_base import TunerBase
@@ -20,8 +21,7 @@ class TankTuner(TunerBase):
         self._tank = TankBase()
         self._color_sensor = ColorSensor()
 
-        self._degrees_to_360_rotation = 0
-        self._degrees_to_1_meter_movement = 0
+        self._params = Parameters({'degrees_for_360_rotation': 0, 'degrees_for_1_meter_movement': 0})
 
     def _process(self):
         self._tune_movement()
@@ -30,14 +30,14 @@ class TankTuner(TunerBase):
         self._tune_rotation()
 
     def _save_to_config(self):
-        self._tank.config._degrees_to_360_rotation = math.fabs(
-            float(self._degrees_to_360_rotation) / float(TUNE_MOVEMENT_ROTATION_COUNT)
+        self._tank.config.degrees_for_360_rotation = math.fabs(
+            float(self._params.degrees_for_360_rotation) / float(TUNE_MOVEMENT_ROTATION_COUNT)
         )
-        self._tank.config._degrees_to_1_meter_movement = math.fabs(
-            float(self._degrees_to_1_meter_movement) / float(TUNE_MOVEMENT_LENGTH)
+        self._tank.config.degrees_for_1_meter_movement = math.fabs(
+            float(self._params.degrees_for_1_meter_movement) / float(TUNE_MOVEMENT_LENGTH)
         )
-        self._tank.config._furrow = math.fabs(
-            self._tank.config._degrees_to_360_rotation / (math.pi * self._tank.config._degrees_to_1_meter_movement)
+        self._tank.config.track_spacing = math.fabs(
+            self._tank.config.degrees_for_360_rotation / (180 * self._tank.config.degrees_for_1_meter_movement)
         )
         self._tank.config.save()
 
@@ -61,7 +61,7 @@ class TankTuner(TunerBase):
 
         self._tank.stop()
         finish_degrees = self._tank.motor_degrees
-        self._degrees_to_360_rotation = math.fabs(
+        self._tank.config.degrees_for_360_rotation = math.fabs(
             float(finish_degrees - start_degrees) / float(TUNE_MOVEMENT_ROTATION_COUNT)
         )
 
@@ -75,7 +75,7 @@ class TankTuner(TunerBase):
         self._tank.stop()
         finish_degrees = self._tank.motor_degrees
 
-        self._degrees_to_1_meter_movement = math.fabs(
+        self._tank.config.degrees_for_1_meter_movement = math.fabs(
             float(finish_degrees - start_degrees) / float(TUNE_MOVEMENT_LENGTH)
         )
 
