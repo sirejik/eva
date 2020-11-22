@@ -44,7 +44,8 @@ class TankConfig(Config):
         self.track_spacing = self._config.get('track_spacing')
 
     def verify(self):
-        if self.degrees_for_360_rotation is None or self.degrees_for_1_meter_movement or self.track_spacing:
+        if self.degrees_for_360_rotation is None or self.degrees_for_1_meter_movement is None or \
+                self.track_spacing is None:
             raise Exception(
                 'The tank parameters were not configured. You must run the tune_motion.py.'
             )

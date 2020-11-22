@@ -1,8 +1,11 @@
 from eva.modules.tank import Tank
+from eva.robots.robot_base import RobotBase
 
 
-class Traveler:
+class Traveler(RobotBase):
     def __init__(self, commands=None):
+        super(Traveler, self).__init__()
+
         self._tank = Tank()
         self._commands = commands or []
 

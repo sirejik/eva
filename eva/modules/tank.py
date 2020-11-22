@@ -75,9 +75,9 @@ class Tank(TankBase):
 
         self.config.verify()
 
-        self._degrees_to_360_rotation = self.config.degrees_for_360_rotation
-        self._degrees_to_1_meter_movement = self.config.degrees_for_1_meter_movement
-        self._furrow = self.config.track_spacing
+        self._degrees_for_360_rotation = self.config.degrees_for_360_rotation
+        self._degrees_for_1_meter_movement = self.config.degrees_for_1_meter_movement
+        self._track_spacing = self.config.track_spacing
 
     def move_in_arc(self, velocity, radius):
         if radius is None:
@@ -87,18 +87,18 @@ class Tank(TankBase):
         if radius == 0:
             self.stop()
 
-        velocity_coefficient = self._furrow * 0.5 / radius
+        velocity_coefficient = self._track_spacing * 0.5 / radius
         velocity_left = velocity * (1 + velocity_coefficient)
         velocity_right = velocity * (1 - velocity_coefficient)
 
         self.on(velocity_left, velocity_right)
 
     def forward_on_distance(self, velocity, distance):
-        degrees = self._degrees_to_1_meter_movement * distance
+        degrees = self._degrees_for_1_meter_movement * distance
         self._tank_pair.on_for_degrees(left_speed=velocity, right_speed=velocity, degrees=degrees)
 
     def rotate_on_angle(self, velocity, angle):
-        degrees = self._degrees_to_360_rotation * angle / 360
+        degrees = self._degrees_for_360_rotation * angle / 360
         self._tank_pair.on_for_degrees(left_speed=velocity, right_speed=-velocity, degrees=degrees)
 
     def rotate_on_degrees(self, velocity, degrees):
