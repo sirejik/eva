@@ -10,7 +10,7 @@ logger = logging.getLogger()
 
 CIRCLE_NUMBER = 8
 SECTOR_NUMBER = 16
-SECTOR_ANGLE = 2.0 * 360 / float(SECTOR_NUMBER)
+SECTOR_ANGLE = 360 / float(SECTOR_NUMBER)
 CIRCLE_STEP = 0.1
 DELAY_BETWEEN_MEASUREMENTS = 0.1
 
@@ -29,11 +29,8 @@ class InfraredTuner(TunerBase):
         return self._tank.test_velocity
 
     def _process(self):
-        infrared_sensor_map = []
+        infrared_sensor_map = [[0 for _ in range(0, SECTOR_NUMBER)] for _ in range(0, CIRCLE_NUMBER)]
         for x in range(0, CIRCLE_NUMBER):
-            infrared_sensor_map[x] = []
-            begin_position = self._tank.motor_degrees
-
             for y in range(0, SECTOR_NUMBER):
                 time.sleep(DELAY_BETWEEN_MEASUREMENTS)
                 heading, _ = self._infrared_sensor.heading_and_distance()
@@ -41,8 +38,6 @@ class InfraredTuner(TunerBase):
 
                 self._tank.rotate_on_angle(self._velocity, SECTOR_ANGLE)
 
-            end_position = self._tank.motor_degrees
-            self._tank.rotate_on_degrees(self._velocity, begin_position - end_position)
             self._tank.forward_on_distance(self._velocity, -CIRCLE_STEP)
 
         circles = []

@@ -51,11 +51,11 @@ class TankConfig(Config):
             )
 
     def _update_parameters(self):
-        self._config = {
+        self._config.update({
             'degrees_for_360_rotation': self.degrees_for_360_rotation,
             'degrees_for_1_meter_movement': self.degrees_for_1_meter_movement,
             'track_spacing': self.track_spacing
-        }
+        })
 
 
 class ColorConfig(Config):
@@ -72,10 +72,10 @@ class ColorConfig(Config):
             )
 
     def _update_parameters(self):
-        self._config = {
+        self._config.update({
             'min_reflected_light_intensity': self.min_reflected_light_intensity,
             'max_reflected_light_intensity': self.max_reflected_light_intensity
-        }
+        })
 
 
 class InfraredSensorConfig(Config):
@@ -91,9 +91,9 @@ class InfraredSensorConfig(Config):
             )
 
     def _update_parameters(self):
-        self._config = {
+        self._config.update({
             'high_heading': self.high_heading
-        }
+        })
 
 
 class TrolleyPIDConfig(Config):
@@ -122,9 +122,9 @@ class TrolleyPIDConfig(Config):
             )
 
     def _update_parameters(self):
-        self._config = {
+        self._config.update({
             'kp': self.kp,
             'ki': self.ki,
             'kd': self.kd,
             'max_forward_velocity': self.max_forward_velocity
-        }
+        })
