@@ -78,24 +78,6 @@ class ColorConfig(Config):
         })
 
 
-class InfraredSensorConfig(Config):
-    def __init__(self):
-        super(InfraredSensorConfig, self).__init__()
-
-        self.high_heading = self._config.get('high_heading')
-
-    def verify(self):
-        if self.high_heading is None:
-            raise Exception(
-                'The infrared sensor doesn\'t calibrated. You must run the tune_infrared_sensor.py.'
-            )
-
-    def _update_parameters(self):
-        self._config.update({
-            'high_heading': self.high_heading
-        })
-
-
 class TrolleyPIDConfig(Config):
     def __init__(self):
         super(TrolleyPIDConfig, self).__init__(CONFIG_FILE)

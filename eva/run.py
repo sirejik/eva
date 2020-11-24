@@ -63,12 +63,6 @@ def create_color_tuner():
     return ColorTuner()
 
 
-def create_infrared_tuner():
-    from eva.tuner.infrared_tuner import InfraredTuner
-
-    return InfraredTuner()
-
-
 def create_tank_tuner():
     from eva.tuner.tank_tuner import TankTuner
 

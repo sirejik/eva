@@ -61,10 +61,11 @@ class TankBase:
         self._tank_pair.stop()  # TODO: check option brake
 
     def _get_calibrated_velocities_in_percent(self, velocity_left, velocity_right):
-        if velocity_left > self.max_velocity:
-            return self.max_velocity, velocity_right * self.max_velocity / velocity_left
-        elif velocity_right > self.max_velocity:
-            return velocity_left * self.max_velocity / velocity_right, self.max_velocity
+        if velocity_left > self.max_velocity or velocity_right > self.max_velocity:
+            if velocity_left > velocity_right:
+                return self.max_velocity, velocity_right * self.max_velocity / velocity_left
+            else:
+                return velocity_left * self.max_velocity / velocity_right, self.max_velocity
         else:
             return velocity_left, velocity_right
 
