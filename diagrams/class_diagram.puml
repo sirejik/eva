@@ -1,20 +1,58 @@
 @startuml
 
+interface CommandBase {
+    execute(tank: Tank, velocity)
+}
+
+class MovementCommand {
+}
+MovementCommand --|> CommandBase
+
+class RotationCommand {
+}
+RotationCommand --|> CommandBase
+
 interface Config {
+    verify()
+    save()
 }
 
 class TankConfig {
+    degrees_for_360_rotation
+    degrees_for_1_meter_movement
+    track_spacing
 }
 TankConfig --|> Config
 
 class ColorConfig {
+    min_reflected_light_intensity
+    max_reflected_light_intensity
 }
 ColorConfig --|> Config
 
+class TrolleyPIDConfig {
+    kp
+    ki
+    kd
+    max_forward_velocity
+}
+TrolleyPIDConfig --|> Config
+
+class Parameters {
+    update(params)
+    backup()
+    restore()
+}
+
 class PIDRegulator {
+    get_power(value)
+    get_mistake()
 }
 
 class ColorSensorBase {
+    config : ColorConfig
+    reflected_light_intensity
+    color
 }
 ColorSensorBase --> ColorConfig
 
@@ -23,13 +61,35 @@ class ColorSensor {
 ColorSensor --|> ColorSensorBase
 
 class InfraredSensor {
+    is_sensor_enabled(distance)
+    is_sensor_detected(distance)
+    is_sensor_in_front_of(heading, distance)
+    is_sensor_on_the_line(heading)
+    is_sensor_near(distance)
+    is_sensor_in_sector(heading)
+    heading_and_distance()
 }
 
 class TankBase {
+    config: TankConfig
+    low_velocity
+    test_velocity
+    normal_velocity
+    motor_degrees
+    high_velocity
+    forward(velocity)
+    on(velocity_left, velocity_right)
+    rotate(velocity, is_right_turn)
+    stop()
+
 }
 TankBase --> TankConfig
 
 class Tank {
+    move_in_arc(velocity, radius)
+    forward_on_distance(velocity, distance)
+    rotate_on_angle(velocity, angle)
+    rotate_on_degrees(velocity, degrees)
 }
 Tank --|> TankBase
 
@@ -38,67 +98,69 @@ interface RobotBase {
 }
 
 interface TrolleyBase {
-        tank: TankBase
-        color_sensor: ColorSensor
+    _tank: TankBase
+    _color_sensor: ColorSensor
+    _pid_config: TrolleyPIDConfig
+    _regulator: PIDRegulator
 }
 TrolleyBase --|> RobotBase
 TrolleyBase --> TankBase
 TrolleyBase --> ColorSensor
+TrolleyBase --> TrolleyPIDConfig
 TrolleyBase --> PIDRegulator
 
 class Follower {
-        tank: Tank
-        infrared_sensor: InfraredSensor
+    _tank: Tank
+    _infrared_sensor: InfraredSensor
 }
 Follower --|> RobotBase
 Follower --> Tank
 Follower --> InfraredSensor
 
 class Traveler {
-        tank: Tank
+    _tank: Tank
+    _commands
 }
 Traveler --|> RobotBase
 Traveler --> Tank
+Traveler --> CommandBase
 
 class Trolley {
 }
 Trolley --|> TrolleyBase
 
 interface TunerBase {
-        touch_sensor: TouchSensor
-        sound: Sound
-        _process()
-        _save_to_config()
+    touch_sensor: TouchSensor
+    sound: Sound
+    tune()
 }
 
 class ColorTuner {
-        tank: TankBase
-        color_sensor: ColorSensorBase
+    _tank: TankBase
+    _color_sensor: ColorSensorBase
+    _params: Parameters
 }
 ColorTuner --|> TunerBase
 ColorTuner --> TankBase
 ColorTuner --> ColorSensorBase
-
-class InfraredTuner {
-        tank: Tank
-        infrared_sensor: InfraredSensor
-}
-InfraredTuner --|> TunerBase
-InfraredTuner --> Tank
-InfraredTuner --> InfraredSensor
+ColorTuner --> Parameters
 
 class TankTuner {
-        tank: TankBase
-        color_sensor: ColorSensor
+    _tank: TankBase
+    _color_sensor: ColorSensorBase
+    _params: Parameters
 }
 TankTuner --|> TunerBase
 TankTuner --> TankBase
-TankTuner --> ColorSensor
+TankTuner --> ColorSensorBase
+TankTuner --> Parameters
 
 class TrolleyTunerBase {
+    _params: Parameters
 }
 TrolleyTunerBase --|> TrolleyBase
 TrolleyTunerBase --|> TunerBase
+TrolleyTunerBase --> Parameters
 
 class TrolleyPIDRegulatorTuner {
 }

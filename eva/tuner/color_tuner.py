@@ -1,5 +1,6 @@
 import logging
 
+from eva.lib.parameters import Parameters
 from eva.lib.utils import FunctionResultWaiter
 from eva.modules.colorsensor import ColorSensorBase
 from eva.modules.tank import TankBase
@@ -18,8 +19,7 @@ class ColorTuner(TunerBase):
         self._tank = TankBase()
         self._color_sensor = ColorSensorBase()
 
-        self._min_reflected_light_intensity = 100
-        self._max_reflected_light_intensity = 0
+        self._params = Parameters({'min_reflected_light_intensity': 100, 'max_reflected_light_intensity': 0})
 
     def _process(self):
         self._tank.forward(self._velocity)
@@ -36,8 +36,8 @@ class ColorTuner(TunerBase):
         self._tank.stop()
 
     def _save_to_config(self):
-        self._color_sensor.config.min_reflected_light_intensity = self._min_reflected_light_intensity
-        self._color_sensor.config.max_reflected_light_intensity = self._max_reflected_light_intensity
+        self._color_sensor.config.min_reflected_light_intensity = self._params.min_reflected_light_intensity
+        self._color_sensor.config.max_reflected_light_intensity = self._params.max_reflected_light_intensity
         self._color_sensor.config.save()
 
     @property
@@ -46,6 +46,10 @@ class ColorTuner(TunerBase):
 
     def _process_reflected_light_intensity(self):
         reflected_light_intensity = self._color_sensor.reflected_light_intensity
-        self._min_reflected_light_intensity = min(self._min_reflected_light_intensity, reflected_light_intensity)
-        self._max_reflected_light_intensity = max(self._max_reflected_light_intensity, reflected_light_intensity)
+        self._params.min_reflected_light_intensity = min(
+            self._params.min_reflected_light_intensity, reflected_light_intensity
+        )
+        self._params.max_reflected_light_intensity = max(
+            self._params.max_reflected_light_intensity, reflected_light_intensity
+        )
         return reflected_light_intensity

@@ -53,7 +53,7 @@ class TrolleyBase(RobotBase):
         ).run()
 
     def _move_on_track(self):
-        FunctionResultWaiter(self._moving, None, check_function=self._stopping, interval_between_attempts=0).run()
+        FunctionResultWaiter(self._moving, None, check_function=self._stopping).run()
 
     def _complete(self):
         self._tank.stop()
@@ -94,4 +94,4 @@ class TrolleyBase(RobotBase):
 
     @property
     def _rotate_velocity(self):
-        return self._tank.max_velocity
+        return self._tank.high_velocity
