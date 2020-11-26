@@ -11,7 +11,7 @@ from eva.lib.utils import FunctionResultWaiter
 
 logger = logging.getLogger()
 
-LONG_BUTTON_PRESS_TIME = 3
+BUTTON_HOLD_TIME = 3
 
 
 class TunerBase(metaclass=ABCMeta):
@@ -29,6 +29,10 @@ class TunerBase(metaclass=ABCMeta):
         self._save_to_config()
         logger.info('The {} robot finished tuning.'.format(self._name))
 
+    @abstractmethod
+    def stop(self):
+        pass
+
     def _wait_button_press(self):
         self._sound.beep()
         FunctionResultWaiter(
@@ -38,14 +42,14 @@ class TunerBase(metaclass=ABCMeta):
             lambda: self._touch_sensor.is_pressed, None, check_function=lambda is_pressed: is_pressed == 0
         ).run()
 
-    def _check_long_button_press(self):
+    def _check_button_hold(self):
         if self._touch_sensor.is_pressed:
             start_time = time.time()
             FunctionResultWaiter(
                 lambda: self._touch_sensor.is_pressed, None, check_function=lambda is_pressed: is_pressed == 0
             ).run()
             end_time = time.time()
-            return end_time - start_time >= LONG_BUTTON_PRESS_TIME
+            return end_time - start_time >= BUTTON_HOLD_TIME
         else:
             return None
 

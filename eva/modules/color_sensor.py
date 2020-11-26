@@ -9,6 +9,8 @@ logger = logging.getLogger()
 
 class ColorSensorBase:
     COLOR_WHITE = EV3ColorSensor.COLOR_WHITE
+    MIN_REFLECTED_LIGHT_INTENSITY = 0
+    MAX_REFLECTED_LIGHT_INTENSITY = 100
 
     def __init__(self):
         self.config = ColorConfig()

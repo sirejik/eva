@@ -9,6 +9,8 @@ logger = logging.getLogger()
 
 def run(create_robot):
     configure_logging()
+
+    robot = None
     try:
         logger.info('{name} started to work.'.format(name=ROBOT_NAME))
         robot = create_robot()
@@ -27,6 +29,9 @@ def run(create_robot):
         logger.error('An unexpected error occurred. See the details in the log file "%s".' % LOG_FILE_NAME)
         logger.info('{name} unexpectedly finished work.'.format(name=ROBOT_NAME))
         return 1
+    finally:
+        if robot is not None:
+            robot.stop()
 
 
 def create_follower():

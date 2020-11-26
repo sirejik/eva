@@ -11,27 +11,27 @@ logger = logging.getLogger()
 class Config(metaclass=ABCMeta):
     def __init__(self, config_file_name=CONFIG_FILE):
         self._config_file_name = config_file_name
-        self._config = self._get_parameters_from_config_file()
+        self._config = self._load_config_file()
 
     @abstractmethod
     def verify(self):
         pass
 
     def save(self):
-        self._update_parameters()
+        self._config.update(self._get_new_parameters())
         with open(self._config_file_name, 'w') as f:
             json.dump(self._config, f)
 
-    def _get_parameters_from_config_file(self):
+    def _load_config_file(self):
         try:
             with open(self._config_file_name) as f:
                 return json.load(f)
         except IOError:
-            logger.debug('File with configuration parameters was not found. Configuration parameters not defined.')
+            logger.debug('The file with configuration parameters was not found. Configuration parameters not defined.')
             return {}
 
     @abstractmethod
-    def _update_parameters(self):
+    def _get_new_parameters(self):
         pass
 
 
@@ -50,12 +50,12 @@ class TankConfig(Config):
                 'The tank parameters were not configured. You must run the tune_motion.py.'
             )
 
-    def _update_parameters(self):
-        self._config.update({
+    def _get_new_parameters(self):
+        return {
             'degrees_for_360_rotation': self.degrees_for_360_rotation,
             'degrees_for_1_meter_movement': self.degrees_for_1_meter_movement,
             'track_spacing': self.track_spacing
-        })
+        }
 
 
 class ColorConfig(Config):
@@ -71,11 +71,11 @@ class ColorConfig(Config):
                 'The reflected light intensity doesn\'t calibrated. You must run the tune_color_sensor.py.'
             )
 
-    def _update_parameters(self):
-        self._config.update({
+    def _get_new_parameters(self):
+        return {
             'min_reflected_light_intensity': self.min_reflected_light_intensity,
             'max_reflected_light_intensity': self.max_reflected_light_intensity
-        })
+        }
 
 
 class TrolleyPIDConfig(Config):
@@ -103,10 +103,10 @@ class TrolleyPIDConfig(Config):
                 'The max velocity for the trolley doesn\'t tuned. You must run the tune_trolley_velocity.py.'
             )
 
-    def _update_parameters(self):
-        self._config.update({
+    def _get_new_parameters(self):
+        return {
             'kp': self.kp,
             'ki': self.ki,
             'kd': self.kd,
             'max_forward_velocity': self.max_forward_velocity
-        })
+        }

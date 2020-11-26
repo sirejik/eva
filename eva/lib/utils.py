@@ -1,4 +1,5 @@
 import logging
+import os
 import sys
 import time
 
@@ -61,6 +62,10 @@ class FunctionResultWaiter(object):
 
 
 def configure_logging():
+    dirname = os.path.dirname(LOG_FILE_NAME)
+    if not os.path.exists(dirname):
+        os.makedirs(dirname)
+
     logger.setLevel(logging.DEBUG)
     formatter = logging.Formatter('[%(asctime)s] [%(levelname)s]: %(message)s')
     stdout_logger_handler = logging.StreamHandler(sys.stdout)

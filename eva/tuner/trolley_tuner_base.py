@@ -8,10 +8,10 @@ from eva.tuner.tuner_base import TunerBase
 
 logger = logging.getLogger()
 
-MAX_STEPS = 7
-
 
 class TrolleyTunerBase(TrolleyBase, TunerBase, ABC):
+    MAX_STEPS = 7
+
     def __init__(self):
         super(TrolleyTunerBase, self).__init__()
 
@@ -19,7 +19,7 @@ class TrolleyTunerBase(TrolleyBase, TunerBase, ABC):
 
     def _maximize_params(self, get_params, start_value=0.0, end_value=1.0, step=0):
         current_value = (start_value + end_value) * 0.5
-        if step >= MAX_STEPS:
+        if step >= self.MAX_STEPS:
             return start_value
 
         self._params.update(get_params(current_value))
@@ -46,7 +46,7 @@ class TrolleyTunerBase(TrolleyBase, TunerBase, ABC):
         return not self._params.is_interrupted
 
     def _stopping(self, measure):
-        result = self._check_long_button_press()
+        result = self._check_button_hold()
         if result is not None:
             self._params.is_interrupted = result
             return True

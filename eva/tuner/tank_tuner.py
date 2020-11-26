@@ -3,7 +3,7 @@ import math
 
 from eva.lib.parameters import Parameters
 from eva.lib.utils import FunctionResultWaiter
-from eva.modules.colorsensor import ColorSensorBase
+from eva.modules.color_sensor import ColorSensorBase
 from eva.modules.tank import TankBase
 from eva.tuner.tuner_base import TunerBase
 
@@ -25,6 +25,9 @@ class TankTuner(TunerBase):
     def _process(self):
         self._tune_movement()
         self._tune_rotation()
+
+    def stop(self):
+        self._tank.stop()
 
     def _save_to_config(self):
         self._tank.config.degrees_for_1_meter_movement = self._params.degrees_for_1_meter_movement
@@ -58,7 +61,7 @@ class TankTuner(TunerBase):
         self._rotate_to_next_color(self._color_sensor.COLOR_WHITE)
 
         start_degrees = self._tank.motor_degrees
-        for i in range(TUNE_MOVEMENT_ROTATION_COUNT):
+        for _ in range(TUNE_MOVEMENT_ROTATION_COUNT):
             self._rotate_to_next_color(self._color_sensor.COLOR_WHITE)
 
         finish_degrees = self._tank.motor_degrees

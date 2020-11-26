@@ -17,5 +17,9 @@ class RobotBase(metaclass=ABCMeta):
         logger.info('The {} robot finished work.'.format(self._name))
 
     @abstractmethod
+    def stop(self):
+        pass
+
+    @abstractmethod
     def _run(self):
         pass

@@ -7,7 +7,7 @@ from collections import namedtuple
 from eva.lib.config import TrolleyPIDConfig
 from eva.lib.regulator import PIDRegulator
 from eva.lib.utils import FunctionResultWaiter
-from eva.modules.colorsensor import ColorSensor
+from eva.modules.color_sensor import ColorSensor
 from eva.modules.tank import TankBase
 from eva.robots.robot_base import RobotBase
 
@@ -39,6 +39,9 @@ class TrolleyBase(RobotBase):
         self._find_track()
         self._move_on_track()
         self._complete()
+
+    def stop(self):
+        self._tank.stop()
 
     def _prepare(self):
         self._regulator = self._create_regulator()

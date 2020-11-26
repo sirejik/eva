@@ -35,6 +35,7 @@ class TrolleyPIDConfig {
     ki
     kd
     max_forward_velocity
+    verify_pid_parameters()
 }
 TrolleyPIDConfig --|> Config
 
@@ -95,6 +96,7 @@ Tank --|> TankBase
 
 interface RobotBase {
     run()
+    stop()
 }
 
 interface TrolleyBase {
@@ -133,6 +135,7 @@ interface TunerBase {
     touch_sensor: TouchSensor
     sound: Sound
     tune()
+    stop()
 }
 
 class ColorTuner {

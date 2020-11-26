@@ -1,11 +1,13 @@
 import logging
 
 from eva.lib.utils import FunctionResultWaiter
-from eva.modules.infraredsensor import InfraredSensor, MAX_HEADING, MAX_DISTANCE
+from eva.modules.infrared_sensor import InfraredSensor, MAX_HEADING, MAX_DISTANCE
 from eva.modules.tank import Tank
 from eva.robots.robot_base import RobotBase
 
 logger = logging.getLogger()
+
+FORWARD_VELOCITY_COEF = 2
 
 
 class Follower(RobotBase):
@@ -37,6 +39,9 @@ class Follower(RobotBase):
                     check_function=lambda x: not self._is_moving_needed(x),
                 ).run()
 
+    def stop(self):
+        self._tank.stop()
+
     @property
     def _velocity(self):
         return self._tank.high_velocity
@@ -45,7 +50,7 @@ class Follower(RobotBase):
         heading, distance = self._infrared_sensor.heading_and_distance()
 
         if self._is_forward_moving_needed((heading, distance)):
-            forward_velocity = 2 * self._velocity * distance / MAX_DISTANCE
+            forward_velocity = FORWARD_VELOCITY_COEF * self._velocity * distance / MAX_DISTANCE
         else:
             forward_velocity = 0
 
