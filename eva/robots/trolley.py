@@ -7,7 +7,7 @@ logger = logging.getLogger()
 
 class Trolley(TrolleyBase):
     def __init__(self):
-        super(TrolleyBase, self).__init__()
+        super(Trolley, self).__init__()
 
         self._pid_config.verify()
 
