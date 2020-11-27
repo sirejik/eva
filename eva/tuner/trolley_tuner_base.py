@@ -22,7 +22,7 @@ class TrolleyTunerBase(TrolleyBase, TunerBase, ABC):
         if step >= self.MAX_STEPS:
             return start_value
 
-        self._params.update(get_params(current_value))
+        self._restore_and_update_params(get_params(current_value))
         self._run()
         if self._is_system_stable():
             return self._maximize_params(get_params, current_value, end_value, step + 1)
@@ -32,11 +32,11 @@ class TrolleyTunerBase(TrolleyBase, TunerBase, ABC):
     def _process(self):
         self._params.backup()
 
-        super(TrolleyTunerBase, self)._process()
+    def _restore_and_update_params(self, params):
+        self._params.restore()
+        self._params.update(params)
 
     def _prepare(self):
-        self._params.restore()
-
         # Set manually to the initial position
         self._wait_button_press()
 

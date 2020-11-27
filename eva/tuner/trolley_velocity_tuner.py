@@ -13,7 +13,10 @@ class TrolleyVelocityTuner(TrolleyTunerBase):
         self._params.update({'forward_velocity': 0})
 
     def _process(self):
-        self._maximize_params(lambda x: {'forward_velocity': x})
+        super(TrolleyVelocityTuner, self)._process()
+
+        forward_velocity = self._maximize_params(lambda x: {'forward_velocity': x})
+        self._restore_and_update_params({'forward_velocity': forward_velocity})
 
     @property
     def _forward_velocity(self):

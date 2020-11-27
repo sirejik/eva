@@ -34,10 +34,12 @@ class TrolleyPIDRegulatorTuner(TrolleyTunerBase):
         return
 
     def _process(self):
+        super(TrolleyPIDRegulatorTuner, self)._process()
+
         kp = self._maximize_params(lambda x: {'kp': x, 'ki': 0, 'kd': 0})
         kd = self._maximize_params(lambda x: {'kp': kp, 'ki': 0, 'kd': x})
         ki = self._maximize_params(lambda x: {'kp': kp, 'ki': x, 'kd': kd})
-        self._params.update({'kp': kp, 'ki': ki, 'kd': kd})
+        self._restore_and_update_params({'kp': kp, 'ki': ki, 'kd': kd})
 
     @property
     def _forward_velocity(self):
