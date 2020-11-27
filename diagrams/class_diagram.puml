@@ -132,8 +132,8 @@ class Trolley {
 Trolley --|> TrolleyBase
 
 interface TunerBase {
-    touch_sensor: TouchSensor
-    sound: Sound
+    _touch_sensor: TouchSensor
+    _sound: Sound
     tune()
     stop()
 }
