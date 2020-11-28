@@ -18,7 +18,7 @@ Measure = namedtuple('Measure', ['reflected_light_intensity'])
 
 class TrolleyBase(RobotBase):
     def __init__(self):
-        super(RobotBase, self).__init__()
+        super(TrolleyBase, self).__init__()
 
         self._tank = TankBase()
         self._color_sensor = ColorSensor()

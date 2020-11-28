@@ -10,7 +10,9 @@ class TrolleyVelocityTuner(TrolleyTunerBase):
         super(TrolleyVelocityTuner, self).__init__()
 
         self._pid_config.verify_pid_parameters()
-        self._params.update({'forward_velocity': 0})
+        self._params.update(
+            {'forward_velocity': 0, 'kp': self._pid_config.kp, 'ki': self._pid_config.ki, 'kd': self._pid_config.kd}
+        )
 
     def _process(self):
         super(TrolleyVelocityTuner, self)._process()
@@ -20,7 +22,7 @@ class TrolleyVelocityTuner(TrolleyTunerBase):
 
     @property
     def _forward_velocity(self):
-        return self._params.forward_velocity
+        return self._params.forward_velocity * self._tank.high_velocity
 
     def _save_to_config(self):
         self._pid_config.max_forward_velocity = self._forward_velocity
